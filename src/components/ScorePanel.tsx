@@ -101,7 +101,7 @@ export function ScorePanel({ score, level, gameOver, paused, fastDrop, onReset, 
 
         {/* Game Info */}
         <div className="mt-6 p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
-          <p className="text-slate-400 text-sm text-center leading-relaxed">Linhas monocromáticas e "pontes" limpam na hora.</p>
+          <p className="text-slate-400 text-sm text-center leading-relaxed">Linhas monocromáticas e pontes limpam na hora.</p>
         </div>
       </div>
     </motion.div>

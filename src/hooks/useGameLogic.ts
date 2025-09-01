@@ -86,7 +86,7 @@ export function useGameLogic() {
     clearingAnimations: [],
   });
 
-  const gameLoopRef = useRef<number>();
+  const gameLoopRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
   const sandAccRef = useRef<number>(0);
   const dropAccRef = useRef<number>(0);
@@ -97,7 +97,7 @@ export function useGameLogic() {
   // Set mounted state
   useEffect(() => {
     setIsMounted(true);
-  });
+  }, []);
 
   // Helper functions
   const rng = () => Math.random();

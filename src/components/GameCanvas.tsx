@@ -21,7 +21,7 @@ export function GameCanvas({ onScoreChange, onLevelChange, onGameOver }: GameCan
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { gameState } = useGameLogic();
   const [isMounted, setIsMounted] = useState(false);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number>(0);
   const lastRenderTime = useRef<number>(0);
 
   useEffect(() => {

@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, RotateCcw, Zap, Trophy, Star } from "lucide-react";
+import { RotateCcw, Trophy } from "lucide-react";
 import { GameCanvas } from "@/components/GameCanvas";
 import { useGameLogic } from "@/hooks/useGameLogic";
 
 export default function Home() {
-  const { score, level, gameOver, paused, fastDrop, reset, togglePause, setFastDrop, gameState } = useGameLogic();
+  const { score, level, gameOver, paused, fastDrop, reset, togglePause, gameState } = useGameLogic();
 
   return (
     <>
@@ -73,7 +72,7 @@ export default function Home() {
             Restart (R)
           </button>
           <p className="muted" style={{ marginTop: "10px" }}>
-            Linhas monocromáticas e "pontes" limpam na hora.
+            Linhas monocromáticas e pontes limpam na hora.
           </p>
         </aside>
       </div>
