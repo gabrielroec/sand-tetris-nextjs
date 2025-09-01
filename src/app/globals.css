@@ -86,6 +86,7 @@ body::before {
   background: linear-gradient(180deg, #0b0f1c, #070a14);
   box-shadow: 0 0 50px rgba(167, 139, 250, 0.4);
   z-index: 1;
+  width: fit-content;
 }
 
 h1 {
