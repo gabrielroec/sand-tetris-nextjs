@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useGameLogic } from "@/hooks/useGameLogic";
+import { GameState } from "@/hooks/useGameLogic";
 
 interface GameCanvasProps {
-  onScoreChange: (score: number) => void;
-  onLevelChange: (level: number) => void;
-  onGameOver: () => void;
+  gameState: GameState;
 }
 
 const C_W = 10,
@@ -17,9 +15,8 @@ const SUB = 4,
   F_H = C_H * SUB;
 const COLORS = ["#f87171", "#60a5fa", "#34d399", "#fbbf24", "#a78bfa"];
 
-export function GameCanvas({ onScoreChange, onLevelChange, onGameOver }: GameCanvasProps) {
+export function GameCanvas({ gameState }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { gameState } = useGameLogic();
   const [isMounted, setIsMounted] = useState(false);
   const animationRef = useRef<number>(0);
   const lastRenderTime = useRef<number>(0);

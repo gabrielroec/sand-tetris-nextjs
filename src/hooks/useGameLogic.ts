@@ -55,7 +55,7 @@ const TETROS = [
   ], // T
 ];
 
-interface GameState {
+export interface GameState {
   sand: number[][];
   active: { shape: number[][]; x: number; y: number; color: number } | null;
   score: number;
@@ -96,6 +96,8 @@ export function useGameLogic() {
   const effAccRef = useRef<number>(0);
   const pendingAnimationsRef = useRef<Array<{ x: number; y: number; ttl: number; type: string; color: number }>>([]);
   const frameCountRef = useRef<number>(0);
+  const lastSpawnFrameRef = useRef<number>(-1);
+  const lastLockFrameRef = useRef<number>(-1);
 
   // Set mounted state
   useEffect(() => {
@@ -120,27 +122,27 @@ export function useGameLogic() {
       piece.x = Math.max(0, Math.min(C_W - 1, piece.x));
     }
 
-    // Incrementa contador de peças
-    piecesCountRef.current++;
-    console.log(`🎮 Peça #${piecesCountRef.current} spawnada em (${piece.x}, ${piece.y})`);
-
     return piece;
   }, [isMounted]);
 
   const collidesCoarseWithSand = useCallback(
     (p: { shape: number[][]; x: number; y: number; color: number }, g: number[][], nx: number, ny: number) => {
+      // Verifica limites da tela primeiro
+      if (ny >= C_H || nx < 0 || nx >= C_W) return true;
+      if (ny < 0) return false;
+
       return p.shape.some((coord: number[]) => {
         const [dx, dy] = coord;
         const cx = nx + dx,
           cy = ny + dy;
-        if (cy >= C_H || cx < 0 || cx >= C_W) return true;
-        if (cy < 0) return false;
+        if (cx < 0 || cx >= C_W || cy < 0 || cy >= C_H) return true;
+
         const fx0 = cx * SUB,
           fy0 = cy * SUB;
         // Verifica colisão com a areia
         for (let fy = fy0; fy < fy0 + SUB && fy < F_H; fy++) {
           for (let fx = fx0; fx < fx0 + SUB && fx < F_W; fx++) {
-            if (g[fy][fx] !== 0) return true;
+            if (g[fy] && g[fy][fx] !== 0) return true;
           }
         }
         return false;
@@ -334,7 +336,7 @@ export function useGameLogic() {
     (now: number) => {
       if (!isMounted) return;
 
-      const dt = Math.min(16, now - lastTimeRef.current); // Reduzido para 16ms
+      const dt = Math.min(8, now - lastTimeRef.current); // Reduzido para 8ms para checagens mais frequentes
       lastTimeRef.current = now;
       frameCountRef.current++;
 
@@ -342,13 +344,14 @@ export function useGameLogic() {
         if (prevState.paused || prevState.gameOver) return prevState;
 
         const newState = { ...prevState };
+        let lockedThisFrame = false;
         sandAccRef.current += dt;
         dropAccRef.current += dt;
         effAccRef.current += dt;
 
         // Sand physics - otimizado
-        if (sandAccRef.current >= 40) {
-          // Reduzido para 40ms
+        if (sandAccRef.current >= 20) {
+          // Reduzido para 20ms para física mais suave
           newState.sand = stepSandFine(newState.sand);
           const line = clearMonochromeFine(newState.sand);
           const bridge = clearBridgesFine(line.newSand);
@@ -360,24 +363,35 @@ export function useGameLogic() {
             newState.level = Math.min(12, 1 + Math.floor(newState.score / 500));
             newState.sand = settle(bridge.newSand, 2); // Reduzido para 2
           }
-          sandAccRef.current -= 40;
+          sandAccRef.current -= 20;
         }
 
         // Piece falling - otimizado
-        const base = Math.max(80, 600 - newState.level * 60); // Mais rápido
-        const dropInt = newState.fastDrop ? 20 : base; // Fast drop mais rápido
+        const base = Math.max(40, 300 - newState.level * 30); // Mais rápido e suave
+        const dropInt = newState.fastDrop ? 10 : base; // Fast drop mais rápido e preciso
         const maxDrops = newState.fastDrop ? 5 : 1; // Mais drops por frame
         let dropsProcessed = 0;
 
         while (dropAccRef.current >= dropInt && dropsProcessed < maxDrops) {
           if (!newState.active) {
-            newState.active = spawnPiece();
+            const newPiece = spawnPiece();
+            if (newPiece) {
+              if (lastSpawnFrameRef.current !== frameCountRef.current) {
+                piecesCountRef.current++;
+                console.log(`🎮 Peça #${piecesCountRef.current} spawnada em (${newPiece.x}, ${newPiece.y})`);
+                lastSpawnFrameRef.current = frameCountRef.current;
+              }
+              newState.active = newPiece;
+            }
           }
           if (newState.active && !collidesCoarseWithSand(newState.active, newState.sand, newState.active.x, newState.active.y + 1)) {
             newState.active.y += 1;
           } else if (newState.active) {
             // Desintegração imediata
-            console.log(`💥 Peça #${piecesCountRef.current} colidiu e se desintegrou em (${newState.active.x}, ${newState.active.y})`);
+            if (lastLockFrameRef.current !== frameCountRef.current) {
+              console.log(`💥 Peça #${piecesCountRef.current} colidiu e se desintegrou em (${newState.active.x}, ${newState.active.y})`);
+              lastLockFrameRef.current = frameCountRef.current;
+            }
             const res = lockAndClear(newState.sand, newState.active);
             newState.sand = res.grid;
             if (res.gain > 0) {
@@ -397,14 +411,44 @@ export function useGameLogic() {
               const stabilizedSand = settle(newState.sand, 3);
               newState.sand = stabilizedSand;
 
-              const next = spawnPiece();
-              newState.active = next;
+              // Limpa a peça atual para spawnar nova no próximo loop
+              newState.active = null;
             }
+            lockedThisFrame = true;
             dropAccRef.current = 0;
             break;
           }
           dropAccRef.current -= dropInt;
           dropsProcessed++;
+        }
+
+        // Lock imediato se encostou e não processamos no loop (evita "peça parada" no topo)
+        if (
+          !lockedThisFrame &&
+          newState.active &&
+          collidesCoarseWithSand(newState.active, newState.sand, newState.active.x, newState.active.y + 1)
+        ) {
+          if (lastLockFrameRef.current !== frameCountRef.current) {
+            console.log(`💥 Peça #${piecesCountRef.current} colidiu e se desintegrou em (${newState.active.x}, ${newState.active.y})`);
+            lastLockFrameRef.current = frameCountRef.current;
+          }
+          const res = lockAndClear(newState.sand, newState.active);
+          newState.sand = res.grid;
+          if (res.gain > 0) {
+            newState.score += res.gain;
+            newState.scoreFlash = 15;
+            newState.level = Math.min(12, 1 + Math.floor(newState.score / 500));
+          }
+          if (res.gameOver) {
+            console.log(`💀 GAME OVER! Peça #${piecesCountRef.current} causou game over`);
+            console.log(`📊 Total de peças jogadas: ${piecesCountRef.current}`);
+            console.log(`🎯 Score final: ${newState.score}`);
+            newState.gameOver = true;
+          } else {
+            const stabilizedSand = settle(newState.sand, 3);
+            newState.sand = stabilizedSand;
+            newState.active = null;
+          }
         }
 
         // Effects - ultra otimizado
@@ -444,9 +488,14 @@ export function useGameLogic() {
     if (!isMounted) return;
     console.log(`🔄 JOGO REINICIADO! Contador de peças resetado de ${piecesCountRef.current} para 0`);
     piecesCountRef.current = 0;
+    const firstPiece = spawnPiece();
+    if (firstPiece) {
+      piecesCountRef.current++;
+      console.log(`🎮 Peça #${piecesCountRef.current} spawnada em (${firstPiece.x}, ${firstPiece.y})`);
+    }
     setGameState({
       sand: Array.from({ length: F_H }, () => Array(F_W).fill(0)),
-      active: spawnPiece(),
+      active: firstPiece,
       score: 0,
       level: 1,
       paused: false,

@@ -10,7 +10,6 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === "production",
   },
   // Otimizações de build
-  swcMinify: true,
   poweredByHeader: false,
   compress: true,
 };

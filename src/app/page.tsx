@@ -29,7 +29,7 @@ export default function Home() {
         {/* Game Stage */}
         <div className="stage panel">
           <div className="marquee">ONLINE ARCADE</div>
-          <GameCanvas onScoreChange={() => {}} onLevelChange={() => {}} onGameOver={() => {}} />
+          <GameCanvas gameState={gameState} />
           <div className="grid-hint muted">
             <div>A/D: Move</div>
             <div>Space: Fast Drop</div>
