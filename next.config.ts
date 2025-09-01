@@ -1,7 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  reactStrictMode: true,
+  experimental: {
+    optimizePackageImports: ["framer-motion", "lucide-react"],
+  },
+  // Otimizações de performance
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
+  // Otimizações de build
+  swcMinify: true,
+  poweredByHeader: false,
+  compress: true,
 };
 
 export default nextConfig;

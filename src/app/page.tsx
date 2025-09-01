@@ -1,103 +1,127 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Play, Pause, RotateCcw, Zap, Trophy, Star } from "lucide-react";
+import { GameCanvas } from "@/components/GameCanvas";
+import { useGameLogic } from "@/hooks/useGameLogic";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { score, level, gameOver, paused, fastDrop, reset, togglePause, setFastDrop, gameState } = useGameLogic();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  return (
+    <>
+      {/* Header */}
+      <header style={{ textAlign: "center", marginBottom: "14px" }}>
+        <h1>Sand Tetris – HTML5</h1>
+        <div className="muted">Arcade • Online • RPG vibes</div>
+      </header>
+
+      {/* Main Game Container */}
+      <div className="wrap">
+        {/* Game Stage */}
+        <div className="stage panel">
+          <div className="marquee">ONLINE ARCADE</div>
+          <GameCanvas onScoreChange={() => {}} onLevelChange={() => {}} onGameOver={() => {}} />
+          <div className="grid-hint muted">
+            <div>A/D: Move</div>
+            <div>Space: Fast Drop</div>
+            <div>P/R: Pause/Restart</div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+        {/* Score Panel */}
+        <aside className="panel" style={{ minWidth: "260px" }}>
+          <div className="label">Score</div>
+          <div id="score" className={`big ${gameState.scoreFlash > 0 ? "flash" : ""}`}>
+            {score}
+          </div>
+          <div className="label" style={{ marginTop: "12px" }}>
+            Level
+          </div>
+          <div
+            id="level"
+            style={{ fontSize: "26px", fontWeight: "800", color: "#7dd3fc", textShadow: "0 0 16px rgba(125, 211, 252, 0.25)" }}
+          >
+            {level}
+          </div>
+          <hr style={{ border: "none", borderTop: "1px solid #ffffff22", margin: "14px 0" }} />
+
+          {/* Fast Drop Indicator */}
+          <div
+            id="fast-drop-indicator"
+            style={{
+              display: fastDrop ? "block" : "none",
+              background: "#00ff0044",
+              border: "1px solid #00ff0066",
+              borderRadius: "8px",
+              padding: "8px",
+              marginBottom: "8px",
+              textAlign: "center",
+              fontSize: "12px",
+              color: "#00ff00",
+              fontWeight: "700",
+            }}
+          >
+            ⚡ QUEDA RÁPIDA ATIVA
+          </div>
+
+          <button id="btn-pause" className="btn" onClick={togglePause}>
+            {paused ? "Resume (P)" : "Pause (P)"}
+          </button>
+          <button id="btn-restart" className="btn" style={{ marginTop: "8px", background: "#f59e0b66" }} onClick={reset}>
+            Restart (R)
+          </button>
+          <p className="muted" style={{ marginTop: "10px" }}>
+            Linhas monocromáticas e "pontes" limpam na hora.
+          </p>
+        </aside>
+      </div>
+
+      {/* Footer */}
+      <footer className="muted" style={{ marginTop: "14px", textAlign: "center" }}>
+        Dica: mantenha cores agrupadas para limpar faixas inteiras ✨
       </footer>
-    </div>
+
+      {/* Game Over Overlay - apenas quando realmente não há espaço */}
+      <AnimatePresence>
+        {gameOver && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="overlay"
+            style={{ position: "fixed", zIndex: 50 }}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="panel"
+              style={{ textAlign: "center", maxWidth: "400px", margin: "0 16px" }}
+            >
+              <Trophy style={{ width: "64px", height: "64px", color: "#ffd166", margin: "0 auto 16px" }} />
+              <h2 style={{ fontSize: "32px", fontWeight: "bold", marginBottom: "16px" }}>Game Over!</h2>
+              <p style={{ marginBottom: "24px", fontSize: "18px" }}>
+                Score Final: <span style={{ color: "#ffd166", fontWeight: "bold" }}>{score}</span>
+              </p>
+              <button
+                onClick={reset}
+                className="btn"
+                style={{
+                  background: "#a78bfa66",
+                  color: "#f8fbff",
+                  fontSize: "16px",
+                  padding: "12px 24px",
+                }}
+              >
+                <RotateCcw style={{ width: "20px", height: "20px", marginRight: "8px", display: "inline" }} />
+                Jogar Novamente
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
