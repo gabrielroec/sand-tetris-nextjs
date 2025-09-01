@@ -12,7 +12,7 @@ export default function Home() {
     <>
       {/* Header */}
       <header style={{ textAlign: "center", marginBottom: "14px" }}>
-        <h1>Sand Tetris – HTML5</h1>
+        <h1>Sand Tetris – HTML5 🎮</h1>
         <div className="muted">Arcade • Online • RPG vibes</div>
       </header>
 
