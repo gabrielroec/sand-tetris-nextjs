@@ -109,7 +109,8 @@ export function useGameLogic() {
     const minX = Math.min(...shape.map(([x]) => x));
     const maxX = Math.max(...shape.map(([x]) => x));
     const startX = Math.floor((C_W - (maxX - minX + 1)) / 2) - minX;
-    const piece = { shape, x: Math.max(0, startX), y: 0, color };
+    // Spawna a peça acima da tela para dar tempo de cair
+    const piece = { shape, x: Math.max(0, startX), y: -2, color };
 
     // Garante que a peça seja válida
     if (piece.x < 0 || piece.x >= C_W) {
