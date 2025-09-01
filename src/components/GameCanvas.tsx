@@ -110,35 +110,46 @@ export function GameCanvas({ gameState }: GameCanvasProps) {
       ctx.globalAlpha = 1;
     }
 
-    // Render clearing animations - otimizado
+    // Render clearing animations - otimizado com piscar branco
     if (gameState.clearingAnimations.length > 0) {
       for (const anim of gameState.clearingAnimations) {
         const cx = Math.floor(anim.x / SUB) * CELL + (anim.x % SUB) * (CELL / SUB);
         const cy = Math.floor(anim.y / SUB) * CELL + (anim.y % SUB) * (CELL / SUB);
-        const progress = 1 - anim.ttl / (anim.type === "line" ? 15 : 20); // Reduzido
+        const progress = 1 - anim.ttl / (anim.type === "line" ? 15 : 20);
 
         if (anim.type === "line") {
-          const alpha = progress;
+          // Piscar branco intenso para linhas
+          const alpha = Math.sin(progress * Math.PI * 4) * 0.5 + 0.5; // Piscar 4 vezes
           ctx.globalAlpha = alpha;
           ctx.fillStyle = "#ffffff";
-          ctx.fillRect(cx, cy, CELL / SUB, CELL / SUB);
 
-          ctx.globalAlpha = alpha * 0.2; // Menos intenso
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(cx - 1, cy - 1, CELL / SUB + 2, CELL / SUB + 2);
+          // Renderiza círculo branco piscante
+          ctx.beginPath();
+          ctx.arc(cx + CELL / SUB / 2, cy + CELL / SUB / 2, CELL / SUB / 2 - 0.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Efeito de brilho
+          ctx.globalAlpha = alpha * 0.3;
+          ctx.beginPath();
+          ctx.arc(cx + CELL / SUB / 2, cy + CELL / SUB / 2, CELL / SUB / 2 + 1, 0, Math.PI * 2);
+          ctx.fill();
         } else if (anim.type === "bridge") {
-          const alpha = progress;
-          const scale = 1 + progress * 0.15; // Menos escala
+          // Piscar branco para pontes
+          const alpha = Math.sin(progress * Math.PI * 3) * 0.5 + 0.5; // Piscar 3 vezes
+          const scale = 1 + progress * 0.2;
           ctx.globalAlpha = alpha;
           ctx.fillStyle = "#ffffff";
 
-          const size = (CELL / SUB) * scale;
-          const offset = (size - CELL / SUB) / 2;
-          ctx.fillRect(cx - offset, cy - offset, size, size);
+          // Renderiza círculo branco piscante
+          ctx.beginPath();
+          ctx.arc(cx + CELL / SUB / 2, cy + CELL / SUB / 2, (CELL / SUB / 2 - 0.5) * scale, 0, Math.PI * 2);
+          ctx.fill();
 
-          ctx.globalAlpha = alpha * 0.3; // Menos intenso
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(cx - 2, cy - 2, CELL / SUB + 4, CELL / SUB + 4);
+          // Efeito de brilho
+          ctx.globalAlpha = alpha * 0.4;
+          ctx.beginPath();
+          ctx.arc(cx + CELL / SUB / 2, cy + CELL / SUB / 2, (CELL / SUB / 2 + 2) * scale, 0, Math.PI * 2);
+          ctx.fill();
         }
       }
       ctx.globalAlpha = 1;
