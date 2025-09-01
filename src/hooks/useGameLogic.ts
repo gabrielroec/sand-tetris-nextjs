@@ -191,17 +191,30 @@ export function useGameLogic() {
 
   const shatterPiece = useCallback(
     (g: number[][], p: { shape: number[][]; x: number; y: number; color: number }, density = 0.85) => {
-      if (!isMounted) return g;
+      if (!isMounted) return { grid: g, gameOver: false };
       const out = g.map((r) => r.slice());
+      let gameOver = false;
+
       for (const [dx, dy] of p.shape) {
         const cx = p.x + dx,
           cy = p.y + dy;
         if (cx < 0 || cx >= C_W || cy < 0 || cy >= C_H) continue;
         const fx0 = cx * SUB,
           fy0 = cy * SUB;
-        for (let fy = fy0; fy < fy0 + SUB; fy++) for (let fx = fx0; fx < fx0 + SUB; fx++) if (rng() < density) out[fy][fx] = p.color;
+
+        for (let fy = fy0; fy < fy0 + SUB; fy++) {
+          for (let fx = fx0; fx < fx0 + SUB; fx++) {
+            if (rng() < density) {
+              out[fy][fx] = p.color;
+              // Verifica se a partícula está no topo da tela (primeira linha)
+              if (fy < SUB) {
+                gameOver = true;
+              }
+            }
+          }
+        }
       }
-      return out;
+      return { grid: out, gameOver };
     },
     [isMounted]
   );
@@ -291,8 +304,9 @@ export function useGameLogic() {
 
   const lockAndClear = useCallback(
     (g: number[][], p: { shape: number[][]; x: number; y: number; color: number }) => {
-      if (!isMounted) return { grid: g, gain: 0 };
-      let merged = shatterPiece(g, p);
+      if (!isMounted) return { grid: g, gain: 0, gameOver: false };
+      const shatterResult = shatterPiece(g, p);
+      let merged = shatterResult.grid;
       const lineRes = clearMonochromeFine(merged);
       const bridgeRes = clearBridgesFine(lineRes.newSand);
       const total = lineRes.count + bridgeRes.count;
@@ -302,7 +316,7 @@ export function useGameLogic() {
         merged = bridgeRes.newSand;
         merged = settle(merged, 2); // Reduzido para 2 passos
       }
-      return { grid: merged, gain };
+      return { grid: merged, gain, gameOver: shatterResult.gameOver };
     },
     [gameState.level, shatterPiece, clearMonochromeFine, clearBridgesFine, settle, isMounted]
   );
@@ -363,20 +377,17 @@ export function useGameLogic() {
               newState.level = Math.min(12, 1 + Math.floor(newState.score / 500));
             }
 
-            // Aguarda a areia se estabilizar antes de verificar game over
-            const stabilizedSand = settle(newState.sand, 3);
-            newState.sand = stabilizedSand;
+            // Verifica game over: se alguma partícula da peça encostou no topo
+            if (res.gameOver) {
+              newState.gameOver = true;
+            } else {
+              // Aguarda a areia se estabilizar
+              const stabilizedSand = settle(newState.sand, 3);
+              newState.sand = stabilizedSand;
 
-            const next = spawnPiece();
-            // Verifica game over apenas quando não há espaço para a próxima peça
-            if (next) {
-              const canPlace = !collidesCoarseWithSand(next, stabilizedSand, next.x, next.y);
-              if (!canPlace) {
-                // Game over quando realmente não há espaço para colocar a peça
-                newState.gameOver = true;
-              }
+              const next = spawnPiece();
+              newState.active = next;
             }
-            newState.active = next;
             dropAccRef.current = 0;
             break;
           }
