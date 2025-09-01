@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RotateCcw, Trophy } from "lucide-react";
 import { GameCanvas } from "@/components/GameCanvas";
@@ -7,6 +8,13 @@ import { useGameLogic } from "@/hooks/useGameLogic";
 
 export default function Home() {
   const { score, level, gameOver, paused, fastDrop, reset, togglePause, gameState } = useGameLogic();
+
+  // Debug: rastrear quando o modal do game over aparece
+  React.useEffect(() => {
+    if (gameOver) {
+      console.log(`🚨 MODAL GAME OVER APARECEU! Score: ${score}, Level: ${level}`);
+    }
+  }, [gameOver, score, level]);
 
   return (
     <>

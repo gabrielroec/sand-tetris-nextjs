@@ -86,6 +86,9 @@ export function useGameLogic() {
     clearingAnimations: [],
   });
 
+  // Contador de peças para debug
+  const piecesCountRef = useRef<number>(0);
+
   const gameLoopRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
   const sandAccRef = useRef<number>(0);
@@ -116,6 +119,10 @@ export function useGameLogic() {
     if (piece.x < 0 || piece.x >= C_W) {
       piece.x = Math.max(0, Math.min(C_W - 1, piece.x));
     }
+
+    // Incrementa contador de peças
+    piecesCountRef.current++;
+    console.log(`🎮 Peça #${piecesCountRef.current} spawnada em (${piece.x}, ${piece.y})`);
 
     return piece;
   }, [isMounted]);
@@ -370,6 +377,7 @@ export function useGameLogic() {
             newState.active.y += 1;
           } else if (newState.active) {
             // Desintegração imediata
+            console.log(`💥 Peça #${piecesCountRef.current} colidiu e se desintegrou em (${newState.active.x}, ${newState.active.y})`);
             const res = lockAndClear(newState.sand, newState.active);
             newState.sand = res.grid;
             if (res.gain > 0) {
@@ -380,6 +388,9 @@ export function useGameLogic() {
 
             // Verifica game over: se alguma partícula da peça encostou no topo
             if (res.gameOver) {
+              console.log(`💀 GAME OVER! Peça #${piecesCountRef.current} causou game over`);
+              console.log(`📊 Total de peças jogadas: ${piecesCountRef.current}`);
+              console.log(`🎯 Score final: ${newState.score}`);
               newState.gameOver = true;
             } else {
               // Aguarda a areia se estabilizar
@@ -431,6 +442,8 @@ export function useGameLogic() {
   // Game controls
   const reset = useCallback(() => {
     if (!isMounted) return;
+    console.log(`🔄 JOGO REINICIADO! Contador de peças resetado de ${piecesCountRef.current} para 0`);
+    piecesCountRef.current = 0;
     setGameState({
       sand: Array.from({ length: F_H }, () => Array(F_W).fill(0)),
       active: spawnPiece(),
