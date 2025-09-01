@@ -200,7 +200,7 @@ export function useGameLogic() {
   );
 
   const shatterPiece = useCallback(
-    (g: number[][], p: { shape: number[][]; x: number; y: number; color: number }, density = 0.85) => {
+    (g: number[][], p: { shape: number[][]; x: number; y: number; color: number }, density = 0.95) => {
       if (!isMounted) return { grid: g, gameOver: false };
       const out = g.map((r) => r.slice());
       let gameOver = false;
@@ -212,9 +212,12 @@ export function useGameLogic() {
         const fx0 = cx * SUB,
           fy0 = cy * SUB;
 
+        // Aumenta a densidade e adiciona variação nas partículas
         for (let fy = fy0; fy < fy0 + SUB; fy++) {
           for (let fx = fx0; fx < fx0 + SUB; fx++) {
-            if (rng() < density) {
+            // Densidade mais alta com pequena variação
+            const particleDensity = density + (rng() - 0.5) * 0.1; // 0.9 a 1.0
+            if (rng() < particleDensity) {
               out[fy][fx] = p.color;
               // Verifica se a partícula está no topo da tela (primeira linha)
               if (fy < SUB) {

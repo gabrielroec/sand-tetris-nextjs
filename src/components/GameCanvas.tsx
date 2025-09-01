@@ -41,7 +41,7 @@ export function GameCanvas({ gameState }: GameCanvasProps) {
     ctx.clearRect(0, 0, w, h);
     const px = CELL / SUB;
 
-    // Render sand - otimizado
+    // Render sand - otimizado com partículas redondas
     for (let fy = 0; fy < F_H; fy++) {
       const row = gameState.sand[fy];
       for (let fx = 0; fx < F_W; fx++) {
@@ -50,7 +50,11 @@ export function GameCanvas({ gameState }: GameCanvasProps) {
         ctx.fillStyle = COLORS[v - 1];
         const cx = Math.floor(fx / SUB) * CELL + (fx % SUB) * px;
         const cy = Math.floor(fy / SUB) * CELL + (fy % SUB) * px;
-        ctx.fillRect(cx, cy, px, px);
+
+        // Renderiza partículas redondas
+        ctx.beginPath();
+        ctx.arc(cx + px / 2, cy + px / 2, px / 2 - 0.5, 0, Math.PI * 2);
+        ctx.fill();
       }
     }
 
