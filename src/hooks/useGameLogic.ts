@@ -8,14 +8,14 @@ import { ExplosionContext } from "../types/roguelike";
 // ROGUELIKE MODIFIERS - MODIFICADORES DO JOGO
 // ===============================================
 type RogueMods = {
-  speedMul: number;        // >1 = mais rápido
-  gravityMul: number;      // >1 = mais gravidade
-  bridgeBonus?: number;    // tolerância extra p/ pontes
-  colorMerge?: boolean;    // habilita fusão de cores, etc.
-  oneShots?: { 
-    clearBottom?: number;  // limpar linhas do fundo
+  speedMul: number; // >1 = mais rápido
+  gravityMul: number; // >1 = mais gravidade
+  bridgeBonus?: number; // tolerância extra p/ pontes
+  colorMerge?: boolean; // habilita fusão de cores, etc.
+  oneShots?: {
+    clearBottom?: number; // limpar linhas do fundo
     megaExplosion?: boolean; // explosão gigante
-    megaClear?: boolean;   // contaminação de cores
+    megaClear?: boolean; // contaminação de cores
   };
 };
 
@@ -144,16 +144,19 @@ export function useGameLogic() {
   // ===============================================
   const computeRoguelikeModifiers = useCallback((): RogueMods => {
     const activeCards = roguelikeSystem.roguelikeState.activeCards;
-    console.log(`🎴 Computando modificadores para ${activeCards.length} cartas ativas:`, activeCards.map(c => c.name));
+    console.log(
+      `🎴 Computando modificadores para ${activeCards.length} cartas ativas:`,
+      activeCards.map((c) => c.name)
+    );
 
     let mods: RogueMods = {
       speedMul: 1,
       gravityMul: 1,
-      oneShots: {}
+      oneShots: {},
     };
 
     // Aplica modificadores baseados nas cartas ativas
-    activeCards.forEach(card => {
+    activeCards.forEach((card) => {
       switch (card.type) {
         case "MEGA_EXPLOSION":
           mods.oneShots!.megaExplosion = true;
