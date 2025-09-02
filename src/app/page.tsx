@@ -87,35 +87,35 @@ export default function Home() {
                   marginTop: "8px",
                 }}
               >
-                <svg width="80" height="80" viewBox="0 0 80 80" style={{ margin: "0 auto" }}>
-                  {gameState.nextPiece.shape.map(([dx, dy], index) => {
-                    // Calcula o centro da peça para centralizar melhor
-                    const minX = Math.min(...gameState.nextPiece.shape.map(([x]) => x));
-                    const maxX = Math.max(...gameState.nextPiece.shape.map(([x]) => x));
-                    const minY = Math.min(...gameState.nextPiece.shape.map(([, y]) => y));
-                    const maxY = Math.max(...gameState.nextPiece.shape.map(([, y]) => y));
+                                 <svg width="80" height="80" viewBox="0 0 80 80" style={{ margin: "0 auto" }}>
+                   {gameState.nextPiece.shape.map(([dx, dy], index) => {
+                     // Calcula o centro da peça para centralizar melhor
+                     const minX = Math.min(...gameState.nextPiece!.shape.map(([x]) => x));
+                     const maxX = Math.max(...gameState.nextPiece!.shape.map(([x]) => x));
+                     const minY = Math.min(...gameState.nextPiece!.shape.map(([, y]) => y));
+                     const maxY = Math.max(...gameState.nextPiece!.shape.map(([, y]) => y));
 
-                    const centerX = (4 - (maxX - minX + 1)) / 2 - minX;
-                    const centerY = (4 - (maxY - minY + 1)) / 2 - minY;
+                     const centerX = (4 - (maxX - minX + 1)) / 2 - minX;
+                     const centerY = (4 - (maxY - minY + 1)) / 2 - minY;
 
-                    const x = (centerX + dx) * 20;
-                    const y = (centerY + dy) * 20;
-                    const colors = ["#f87171", "#60a5fa", "#34d399", "#fbbf24", "#a78bfa"];
-                    return (
-                      <rect
-                        key={index}
-                        x={x}
-                        y={y}
-                        width="20"
-                        height="20"
-                        fill={colors[gameState.nextPiece.color - 1]}
-                        stroke="#374151"
-                        strokeWidth="1"
-                        rx="2"
-                      />
-                    );
-                  })}
-                </svg>
+                     const x = (centerX + dx) * 20;
+                     const y = (centerY + dy) * 20;
+                     const colors = ["#f87171", "#60a5fa", "#34d399", "#fbbf24", "#a78bfa"];
+                     return (
+                       <rect
+                         key={index}
+                         x={x}
+                         y={y}
+                         width="20"
+                         height="20"
+                         fill={colors[gameState.nextPiece!.color - 1]}
+                         stroke="#374151"
+                         strokeWidth="1"
+                         rx="2"
+                       />
+                     );
+                   })}
+                 </svg>
               </div>
             </div>
           )}
