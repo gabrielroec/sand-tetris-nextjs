@@ -149,7 +149,7 @@ export function useGameLogic() {
       activeCards.map((c) => c.name)
     );
 
-    let mods: RogueMods = {
+    const mods: RogueMods = {
       speedMul: 1,
       gravityMul: 1,
       oneShots: {},
@@ -542,8 +542,8 @@ export function useGameLogic() {
 
         // Piece falling - otimizado
         const base = Math.max(40, 300 - newState.level * 30); // Mais rápido e suave
-        const dropInt = newState.fastDrop ? 10 : base; // Fast drop mais rápido e preciso
-        const maxDrops = newState.fastDrop ? 5 : 1; // Mais drops por frame
+        const dropInt = newState.fastDrop ? 50 : base; // Fast drop mais controlado (era 10)
+        const maxDrops = newState.fastDrop ? 2 : 1; // Menos drops por frame (era 5)
         let dropsProcessed = 0;
 
         while (dropAccRef.current >= dropInt && dropsProcessed < maxDrops) {
