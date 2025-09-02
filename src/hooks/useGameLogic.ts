@@ -323,7 +323,7 @@ export function useGameLogic() {
     (g: number[][]) => {
       if (!isMounted) return { count: 0, clearedCells: [], newSand: g };
       const out = g.map((r) => r.slice());
-      const clearedCells: Array<{ x: number; y: number }> = [];
+      const clearedCells: Array<{ x: number; y: number; color: number }> = [];
       let count = 0;
       for (let y = 0; y < F_H; y++) {
         const row = out[y];
@@ -335,7 +335,7 @@ export function useGameLogic() {
             // Adiciona animação de limpeza para toda a linha
             for (let x = 0; x < F_W; x++) {
               if (out[y][x] !== 0) {
-                clearedCells.push({ x, y });
+                clearedCells.push({ x, y, color: c });
                 // Adiciona animação de limpeza ao buffer
                 pendingAnimationsRef.current.push({ x, y, ttl: 15, type: "line", color: c });
                 out[y][x] = 0;
@@ -422,17 +422,20 @@ export function useGameLogic() {
         merged = bridgeRes.newSand;
 
         // 🎴 APLICA POWER-UPS ROGUELIKE
-        if (roguelikeSystem.hasActivePowerUps) {
+        if (roguelikeSystem.hasActivePowerUps && lineRes.count > 0) {
           console.log(
             `🎴 APLICANDO POWER-UPS! ${roguelikeSystem.roguelikeState.activeCards.length} power-ups ativos:`,
             roguelikeSystem.roguelikeState.activeCards.map((card) => card.name)
           );
 
+          const clearedLines = [...new Set(lineRes.clearedCells.map((cell) => Math.floor(cell.y / SUB)))];
+          const clearedLineColor = lineRes.clearedCells[0]?.color ?? p.color;
+
           const explosionContext: ExplosionContext = {
             x: p.x,
             y: p.y,
-            color: p.color,
-            clearedLines: [...lineRes.clearedCells.map((cell) => Math.floor(cell.y / SUB))],
+            color: clearedLineColor,
+            clearedLines,
             score: gain,
           };
 
