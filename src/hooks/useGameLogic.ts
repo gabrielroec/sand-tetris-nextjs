@@ -1,6 +1,23 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useRoguelikeSystem } from "./useRoguelikeSystem";
+import { ExplosionContext } from "../types/roguelike";
+
+// ===============================================
+// ROGUELIKE MODIFIERS - MODIFICADORES DO JOGO
+// ===============================================
+type RogueMods = {
+  speedMul: number;        // >1 = mais rápido
+  gravityMul: number;      // >1 = mais gravidade
+  bridgeBonus?: number;    // tolerância extra p/ pontes
+  colorMerge?: boolean;    // habilita fusão de cores, etc.
+  oneShots?: { 
+    clearBottom?: number;  // limpar linhas do fundo
+    megaExplosion?: boolean; // explosão gigante
+    megaClear?: boolean;   // contaminação de cores
+  };
+};
 
 // Game constants
 const C_W = 10,
@@ -86,8 +103,75 @@ export function useGameLogic() {
     clearingAnimations: [],
   });
 
+  // Sistema Roguelike
+  const roguelikeSystem = useRoguelikeSystem({
+    currentScore: gameState.score,
+    onScoreBonus: (bonus) => {
+      setGameState((prev) => ({
+        ...prev,
+        score: prev.score + bonus,
+        scoreFlash: 5,
+      }));
+    },
+    onSpecialEffect: (effects) => {
+      // Adiciona popups dos efeitos especiais
+      const newPopups = effects.map((effect, index) => ({
+        x: (C_W * CELL) / 2,
+        y: (C_H * CELL) / 3 + index * 30,
+        text: effect,
+        ttl: 60,
+        vy: -1,
+      }));
+
+      setGameState((prev) => ({
+        ...prev,
+        popups: [...prev.popups, ...newPopups],
+      }));
+    },
+    onGamePause: (paused) => {
+      setGameState((prev) => ({
+        ...prev,
+        paused: paused,
+      }));
+    },
+  });
+
   // Contador de peças para debug
   const piecesCountRef = useRef<number>(0);
+
+  // ===============================================
+  // ROGUELIKE MODIFIERS - COMPUTAÇÃO DOS EFEITOS
+  // ===============================================
+  const computeRoguelikeModifiers = useCallback((): RogueMods => {
+    const activeCards = roguelikeSystem.roguelikeState.activeCards;
+    console.log(`🎴 Computando modificadores para ${activeCards.length} cartas ativas:`, activeCards.map(c => c.name));
+
+    let mods: RogueMods = {
+      speedMul: 1,
+      gravityMul: 1,
+      oneShots: {}
+    };
+
+    // Aplica modificadores baseados nas cartas ativas
+    activeCards.forEach(card => {
+      switch (card.type) {
+        case "MEGA_EXPLOSION":
+          mods.oneShots!.megaExplosion = true;
+          console.log(`🎴 Mega Explosão ativada - explosões gigantes habilitadas`);
+          break;
+        case "MEGA_CLEAR":
+          mods.oneShots!.megaClear = true;
+          console.log(`🎴 Mega Clear ativado - contaminação de cores habilitada`);
+          break;
+      }
+    });
+
+    console.log(`🎴 Modificadores finais:`, mods);
+    return mods;
+  }, [roguelikeSystem.roguelikeState.activeCards]);
+
+  // Computa modificadores atuais
+  const roguelikeMods = useMemo(() => computeRoguelikeModifiers(), [computeRoguelikeModifiers]);
 
   const gameLoopRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
@@ -244,6 +328,7 @@ export function useGameLogic() {
           const c = row[0];
           if (row.every((v) => v === c)) {
             count++;
+            console.log(`🎯 LINHA COMPLETA DETECTADA! Linha ${y} com cor ${c} - Power-ups serão ativados!`);
             // Adiciona animação de limpeza para toda a linha
             for (let x = 0; x < F_W; x++) {
               if (out[y][x] !== 0) {
@@ -256,9 +341,12 @@ export function useGameLogic() {
           }
         }
       }
+      if (count > 0) {
+        console.log(`🎯 TOTAL: ${count} linha(s) limpa(s) - Power-ups ativos: ${roguelikeSystem.hasActivePowerUps}`);
+      }
       return { count, clearedCells, newSand: out };
     },
-    [isMounted]
+    [isMounted, roguelikeSystem.hasActivePowerUps]
   );
 
   const clearBridgesFine = useCallback(
@@ -318,20 +406,100 @@ export function useGameLogic() {
   const lockAndClear = useCallback(
     (g: number[][], p: { shape: number[][]; x: number; y: number; color: number }) => {
       if (!isMounted) return { grid: g, gain: 0, gameOver: false };
+
       const shatterResult = shatterPiece(g, p);
       let merged = shatterResult.grid;
       const lineRes = clearMonochromeFine(merged);
       const bridgeRes = clearBridgesFine(lineRes.newSand);
       const total = lineRes.count + bridgeRes.count;
       let gain = 0;
+
       if (total > 0) {
         gain = (lineRes.count * 100 + bridgeRes.count * 120) * gameState.level;
         merged = bridgeRes.newSand;
+
+        // 🎴 APLICA POWER-UPS ROGUELIKE
+        if (roguelikeSystem.hasActivePowerUps) {
+          console.log(
+            `🎴 APLICANDO POWER-UPS! ${roguelikeSystem.roguelikeState.activeCards.length} power-ups ativos:`,
+            roguelikeSystem.roguelikeState.activeCards.map((card) => card.name)
+          );
+
+          const explosionContext: ExplosionContext = {
+            x: p.x,
+            y: p.y,
+            color: p.color,
+            clearedLines: [...lineRes.clearedCells.map((cell) => Math.floor(cell.y / SUB))],
+            score: gain,
+          };
+
+          const powerUpResult = roguelikeSystem.applyPowerUpEffects(explosionContext);
+
+          console.log(
+            `🎴 Power-ups geraram ${powerUpResult.additionalExplosions.length} explosões extras e +${powerUpResult.scoreBonus} pontos`
+          );
+
+          // Aplica explosões adicionais dos power-ups
+          if (powerUpResult.additionalExplosions.length > 0) {
+            console.log(`🎴 Aplicando ${powerUpResult.additionalExplosions.length} explosões dos power-ups...`);
+
+            powerUpResult.additionalExplosions.forEach((explosion, index) => {
+              // As coordenadas dos power-ups já estão em escala de células do jogo
+              // Precisamos converter para coordenadas fine (multiplicar por SUB)
+              const cellX = explosion.x;
+              const cellY = explosion.y;
+
+              console.log(`🎴 Explosão ${index + 1}: célula (${cellX}, ${cellY})`);
+
+              // Converte para coordenadas fine e explode toda a célula
+              for (let subX = 0; subX < SUB; subX++) {
+                for (let subY = 0; subY < SUB; subY++) {
+                  const fineX = cellX * SUB + subX;
+                  const fineY = cellY * SUB + subY;
+
+                  // Verifica bounds
+                  if (fineX >= 0 && fineX < F_W && fineY >= 0 && fineY < F_H) {
+                    // Se tem cor específica, só explode essa cor
+                    if (explosion.color) {
+                      if (merged[fineY] && merged[fineY][fineX] === explosion.color) {
+                        merged[fineY][fineX] = 0;
+                        console.log(`💥 Destruiu cor ${explosion.color} em (${fineX}, ${fineY})`);
+                      }
+                    } else {
+                      // Sem cor específica = explode qualquer coisa
+                      if (merged[fineY] && merged[fineY][fineX] > 0) {
+                        console.log(`💥 Destruiu qualquer cor em (${fineX}, ${fineY})`);
+                        merged[fineY][fineX] = 0;
+                      }
+                    }
+                  }
+                }
+              }
+            });
+
+            // Re-processa limpezas após power-ups
+            const postPowerUpLines = clearMonochromeFine(merged);
+            const postPowerUpBridges = clearBridgesFine(postPowerUpLines.newSand);
+            const additionalTotal = postPowerUpLines.count + postPowerUpBridges.count;
+
+            if (additionalTotal > 0) {
+              gain += (postPowerUpLines.count * 100 + postPowerUpBridges.count * 120) * gameState.level;
+              merged = postPowerUpBridges.newSand;
+            }
+          }
+
+          // Adiciona bonus de score dos power-ups
+          gain += powerUpResult.scoreBonus;
+        } else {
+          console.log(`🎴 NENHUM POWER-UP ATIVO - Power-ups disponíveis: ${roguelikeSystem.roguelikeState.activeCards.length}`);
+        }
+
         merged = settle(merged, 2); // Reduzido para 2 passos
       }
+
       return { grid: merged, gain, gameOver: shatterResult.gameOver };
     },
-    [gameState.level, shatterPiece, clearMonochromeFine, clearBridgesFine, settle, isMounted]
+    [gameState.level, shatterPiece, clearMonochromeFine, clearBridgesFine, settle, isMounted, roguelikeSystem]
   );
 
   // Game loop ultra otimizado
@@ -483,12 +651,25 @@ export function useGameLogic() {
       // Game loop sem throttle para máxima responsividade
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     },
-    [stepSandFine, clearMonochromeFine, clearBridgesFine, settle, spawnPiece, collidesCoarseWithSand, lockAndClear, isMounted]
+    [
+      stepSandFine,
+      clearMonochromeFine,
+      clearBridgesFine,
+      settle,
+      spawnPiece,
+      collidesCoarseWithSand,
+      lockAndClear,
+      isMounted,
+      roguelikeSystem,
+    ]
   );
 
   // Game controls
   const reset = useCallback(() => {
     if (!isMounted) return;
+
+    // Reset do sistema Roguelike
+    roguelikeSystem.resetRoguelikeSystem();
     console.log(`🔄 JOGO REINICIADO! Contador de peças resetado de ${piecesCountRef.current} para 0`);
     piecesCountRef.current = 0;
     const firstPiece = spawnPiece();
@@ -611,5 +792,7 @@ export function useGameLogic() {
     reset,
     togglePause,
     setFastDrop,
+    // Sistema Roguelike
+    roguelikeSystem,
   };
 }
