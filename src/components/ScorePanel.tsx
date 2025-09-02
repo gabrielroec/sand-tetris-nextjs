@@ -7,7 +7,6 @@ import { NextPieceDisplay } from "./NextPieceDisplay";
 interface ScorePanelProps {
   score: number;
   level: number;
-  gameOver: boolean;
   paused: boolean;
   fastDrop: boolean;
   nextPiece: { shape: number[][]; color: number } | null;
@@ -15,7 +14,7 @@ interface ScorePanelProps {
   onTogglePause: () => void;
 }
 
-export function ScorePanel({ score, level, gameOver, paused, fastDrop, nextPiece, onReset, onTogglePause }: ScorePanelProps) {
+export function ScorePanel({ score, level, paused, fastDrop, nextPiece, onReset, onTogglePause }: ScorePanelProps) {
   return (
     <motion.div
       initial={{ opacity: 0, x: 50 }}

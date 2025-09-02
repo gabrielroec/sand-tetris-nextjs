@@ -1,7 +1,5 @@
 "use client";
 
-import { GameState } from "@/hooks/useGameLogic";
-
 interface NextPieceDisplayProps {
   nextPiece: { shape: number[][]; color: number } | null;
 }

@@ -4,8 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 
 // Game constants
 const C_W = 12,
-  C_H = 22,
-  CELL = 28;
+  C_H = 22;
 const SUB = 4,
   F_W = C_W * SUB,
   F_H = C_H * SUB;
@@ -571,17 +570,7 @@ export function useGameLogic() {
       // Game loop sem throttle para máxima responsividade
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     },
-    [
-      stepSandFine,
-      clearMonochromeFine,
-      clearBridgesFine,
-      settle,
-      spawnPiece,
-      collidesCoarseWithSand,
-      lockAndClear,
-      calculateGhost,
-      isMounted,
-    ]
+    [stepSandFine, clearMonochromeFine, clearBridgesFine, settle, collidesCoarseWithSand, lockAndClear, calculateGhost, isMounted]
   );
 
   // Game controls
@@ -746,7 +735,7 @@ export function useGameLogic() {
         cancelAnimationFrame(gameLoopRef.current);
       }
     };
-  }, [isMounted]); // Removido gameLoop da dependência
+  }, [isMounted, gameLoop]);
 
   return {
     score: gameState.score,

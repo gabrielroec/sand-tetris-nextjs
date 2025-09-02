@@ -4,8 +4,6 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RotateCcw, Trophy } from "lucide-react";
 import { GameCanvas } from "@/components/GameCanvas";
-import { MobileControls } from "@/components/MobileControls";
-import { MobileScorePanel } from "@/components/MobileScorePanel";
 import { useGameLogic } from "@/hooks/useGameLogic";
 
 export default function Home() {
@@ -89,35 +87,35 @@ export default function Home() {
                   marginTop: "8px",
                 }}
               >
-                                 <svg width="80" height="80" viewBox="0 0 80 80" style={{ margin: "0 auto" }}>
-                   {gameState.nextPiece.shape.map(([dx, dy], index) => {
-                     // Calcula o centro da peça para centralizar melhor
-                     const minX = Math.min(...gameState.nextPiece!.shape.map(([x]) => x));
-                     const maxX = Math.max(...gameState.nextPiece!.shape.map(([x]) => x));
-                     const minY = Math.min(...gameState.nextPiece!.shape.map(([, y]) => y));
-                     const maxY = Math.max(...gameState.nextPiece!.shape.map(([, y]) => y));
+                <svg width="80" height="80" viewBox="0 0 80 80" style={{ margin: "0 auto" }}>
+                  {gameState.nextPiece.shape.map(([dx, dy], index) => {
+                    // Calcula o centro da peça para centralizar melhor
+                    const minX = Math.min(...gameState.nextPiece!.shape.map(([x]) => x));
+                    const maxX = Math.max(...gameState.nextPiece!.shape.map(([x]) => x));
+                    const minY = Math.min(...gameState.nextPiece!.shape.map(([, y]) => y));
+                    const maxY = Math.max(...gameState.nextPiece!.shape.map(([, y]) => y));
 
-                     const centerX = (4 - (maxX - minX + 1)) / 2 - minX;
-                     const centerY = (4 - (maxY - minY + 1)) / 2 - minY;
+                    const centerX = (4 - (maxX - minX + 1)) / 2 - minX;
+                    const centerY = (4 - (maxY - minY + 1)) / 2 - minY;
 
-                     const x = (centerX + dx) * 20;
-                     const y = (centerY + dy) * 20;
-                     const colors = ["#f87171", "#60a5fa", "#34d399", "#fbbf24", "#a78bfa"];
-                     return (
-                       <rect
-                         key={index}
-                         x={x}
-                         y={y}
-                         width="20"
-                         height="20"
-                         fill={colors[gameState.nextPiece!.color - 1]}
-                         stroke="#374151"
-                         strokeWidth="1"
-                         rx="2"
-                       />
-                     );
-                   })}
-                 </svg>
+                    const x = (centerX + dx) * 20;
+                    const y = (centerY + dy) * 20;
+                    const colors = ["#f87171", "#60a5fa", "#34d399", "#fbbf24", "#a78bfa"];
+                    return (
+                      <rect
+                        key={index}
+                        x={x}
+                        y={y}
+                        width="20"
+                        height="20"
+                        fill={colors[gameState.nextPiece!.color - 1]}
+                        stroke="#374151"
+                        strokeWidth="1"
+                        rx="2"
+                      />
+                    );
+                  })}
+                </svg>
               </div>
             </div>
           )}
@@ -199,53 +197,6 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Controles Mobile */}
-      <MobileControls
-        onMoveLeft={() => {
-          // Simular tecla A
-          const event = new KeyboardEvent("keydown", { key: "a" });
-          window.dispatchEvent(event);
-        }}
-        onMoveRight={() => {
-          // Simular tecla D
-          const event = new KeyboardEvent("keydown", { key: "d" });
-          window.dispatchEvent(event);
-        }}
-        onRotate90={() => {
-          // Simular tecla W
-          const event = new KeyboardEvent("keydown", { key: "w" });
-          window.dispatchEvent(event);
-        }}
-        onRotate180={() => {
-          // Simular tecla S
-          const event = new KeyboardEvent("keydown", { key: "s" });
-          window.dispatchEvent(event);
-        }}
-        onFastDrop={() => {
-          // Simular tecla Space
-          const event = new KeyboardEvent("keydown", { key: " " });
-          window.dispatchEvent(event);
-        }}
-        onTogglePause={togglePause}
-        onRestart={reset}
-        paused={paused}
-        fastDrop={fastDrop}
-      />
-
-      {/* Painel de Score Mobile */}
-      <MobileScorePanel
-        score={score}
-        level={level}
-        combo={gameState.combo}
-        comboMultiplier={gameState.comboMultiplier}
-        nextPiece={gameState.nextPiece}
-        gameOver={gameOver}
-        paused={paused}
-        fastDrop={fastDrop}
-        onReset={reset}
-        onTogglePause={togglePause}
-      />
     </>
   );
 }
