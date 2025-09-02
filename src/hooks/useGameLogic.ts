@@ -93,9 +93,7 @@ export function useGameLogic() {
     clearingAnimations: [],
   });
 
-  // Contador de peças para debug
-  const piecesCountRef = useRef<number>(0);
-
+  // Refs para performance
   const gameLoopRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
   const sandAccRef = useRef<number>(0);
@@ -105,6 +103,7 @@ export function useGameLogic() {
   const frameCountRef = useRef<number>(0);
   const lastSpawnFrameRef = useRef<number>(-1);
   const lastLockFrameRef = useRef<number>(-1);
+  const keyPressTimeRef = useRef<{ [key: string]: number }>({});
 
   // Set mounted state
   useEffect(() => {
@@ -121,10 +120,8 @@ export function useGameLogic() {
     const minX = Math.min(...shape.map(([x]) => x));
     const maxX = Math.max(...shape.map(([x]) => x));
     const startX = Math.floor((C_W - (maxX - minX + 1)) / 2) - minX;
-    // Spawna a peça acima da tela para dar tempo de cair
     const piece = { shape, x: Math.max(0, startX), y: -2, color };
 
-    // Garante que a peça seja válida
     if (piece.x < 0 || piece.x >= C_W) {
       piece.x = Math.max(0, Math.min(C_W - 1, piece.x));
     }
@@ -144,7 +141,6 @@ export function useGameLogic() {
 
   const collidesCoarseWithSand = useCallback(
     (p: { shape: number[][]; x: number; y: number; color: number }, g: number[][], nx: number, ny: number) => {
-      // Verifica limites da tela primeiro
       if (ny >= C_H || nx < 0 || nx >= C_W) return true;
       if (ny < 0) return false;
 
@@ -156,7 +152,6 @@ export function useGameLogic() {
 
         const fx0 = cx * SUB,
           fy0 = cy * SUB;
-        // Verifica colisão com a areia
         for (let fy = fy0; fy < fy0 + SUB && fy < F_H; fy++) {
           for (let fx = fx0; fx < fx0 + SUB && fx < F_W; fx++) {
             if (g[fy] && g[fy][fx] !== 0) return true;
@@ -173,7 +168,6 @@ export function useGameLogic() {
     (piece: { shape: number[][]; x: number; y: number; color: number }, sand: number[][]) => {
       let ghostY = piece.y;
 
-      // Simula a queda da peça até encontrar colisão
       while (!collidesCoarseWithSand(piece, sand, piece.x, ghostY + 1)) {
         ghostY++;
       }
@@ -249,14 +243,11 @@ export function useGameLogic() {
         const fx0 = cx * SUB,
           fy0 = cy * SUB;
 
-        // Aumenta a densidade e adiciona variação nas partículas
         for (let fy = fy0; fy < fy0 + SUB; fy++) {
           for (let fx = fx0; fx < fx0 + SUB; fx++) {
-            // Densidade mais alta com pequena variação
-            const particleDensity = density + (rng() - 0.5) * 0.1; // 0.9 a 1.0
+            const particleDensity = density + (rng() - 0.5) * 0.1;
             if (rng() < particleDensity) {
               out[fy][fx] = p.color;
-              // Verifica se a partícula está no topo da tela (primeira linha)
               if (fy < SUB) {
                 gameOver = true;
               }
@@ -281,11 +272,9 @@ export function useGameLogic() {
           const c = row[0];
           if (row.every((v) => v === c)) {
             count++;
-            // Adiciona animação de limpeza para toda a linha
             for (let x = 0; x < F_W; x++) {
               if (out[y][x] !== 0) {
                 clearedCells.push({ x, y });
-                // Adiciona animação de limpeza ao buffer
                 pendingAnimationsRef.current.push({ x, y, ttl: 15, type: "line", color: c });
                 out[y][x] = 0;
               }
@@ -340,7 +329,6 @@ export function useGameLogic() {
             for (const [bx, by] of cells) {
               if (out[by][bx] !== 0) {
                 clearedCells.push({ x: bx, y: by });
-                // Adiciona animação de limpeza ao buffer
                 pendingAnimationsRef.current.push({ x: bx, y: by, ttl: 20, type: "bridge", color: c });
                 out[by][bx] = 0;
               }
@@ -364,19 +352,19 @@ export function useGameLogic() {
       if (total > 0) {
         gain = (lineRes.count * 100 + bridgeRes.count * 120) * gameState.level;
         merged = bridgeRes.newSand;
-        merged = settle(merged, 2); // Reduzido para 2 passos
+        merged = settle(merged, 2);
       }
       return { grid: merged, gain, gameOver: shatterResult.gameOver };
     },
     [gameState.level, shatterPiece, clearMonochromeFine, clearBridgesFine, settle, isMounted]
   );
 
-  // Game loop ultra otimizado
+  // Game loop otimizado
   const gameLoop = useCallback(
     (now: number) => {
       if (!isMounted) return;
 
-      const dt = Math.min(8, now - lastTimeRef.current); // Reduzido para 8ms para checagens mais frequentes
+      const dt = Math.min(16, now - lastTimeRef.current);
       lastTimeRef.current = now;
       frameCountRef.current++;
 
@@ -389,24 +377,21 @@ export function useGameLogic() {
         dropAccRef.current += dt;
         effAccRef.current += dt;
 
-        // Sand physics - MAIS RÁPIDA e responsiva
-        if (sandAccRef.current >= 8) {
-          // Muito mais rápida para física responsiva
+        // Sand physics
+        if (sandAccRef.current >= 16) {
           newState.sand = stepSandFine(newState.sand);
           const line = clearMonochromeFine(newState.sand);
           const bridge = clearBridgesFine(line.newSand);
           const total = line.count + bridge.count;
           if (total > 0) {
-            // Sistema de combo - torna o jogo mais empolgante
             newState.combo++;
-            newState.comboMultiplier = Math.min(5, 1 + Math.floor(newState.combo / 3)); // Multiplicador até 5x
+            newState.comboMultiplier = Math.min(5, 1 + Math.floor(newState.combo / 3));
 
             const baseGain = (line.count * 200 + bridge.count * 300) * newState.level;
             const comboGain = baseGain * newState.comboMultiplier;
             newState.score += comboGain;
-            newState.scoreFlash = 20; // Mais visível
+            newState.scoreFlash = 20;
 
-            // Adiciona popup de combo
             newState.popups.push({
               x: C_W / 2,
               y: C_H / 2,
@@ -415,32 +400,34 @@ export function useGameLogic() {
               vy: -0.5,
             });
 
-            newState.level = Math.min(15, 1 + Math.floor(newState.score / 200)); // Muito mais fácil de subir nível
-            newState.sand = settle(bridge.newSand, 3); // Mais estável
+            newState.level = Math.min(15, 1 + Math.floor(newState.score / 200));
+            newState.sand = settle(bridge.newSand, 3);
           } else {
-            // Reset combo se não limpou nada
             newState.combo = 0;
             newState.comboMultiplier = 1;
           }
-          sandAccRef.current -= 8;
+          sandAccRef.current -= 16;
         }
 
-        // Piece falling - BALANCEADO para ser mais jogável
-        const base = Math.max(200, 800 - newState.level * 50); // Muito mais lento e progressivo
-        const dropInt = newState.fastDrop ? 80 : base; // Fast drop mais controlável
-        const maxDrops = newState.fastDrop ? 3 : 1; // Mais drops por frame para controle
+        // Piece falling
+        const base = Math.max(200, 800 - newState.level * 50);
+        const dropInt = newState.fastDrop ? 120 : base;
+        const maxDrops = newState.fastDrop ? 1 : 1;
         let dropsProcessed = 0;
+
+        // Garante que a peça não desapareça quando muda o modo de queda
+        if (newState.active && newState.active.y < 0) {
+          newState.active.y = Math.max(0, newState.active.y);
+        }
 
         while (dropAccRef.current >= dropInt && dropsProcessed < maxDrops) {
           if (!newState.active) {
-            // Se não há próxima peça, gera uma
             if (!newState.nextPiece) {
               const shape = TETROS[Math.floor(rng() * TETROS.length)].map((c) => [...c]);
               const color = Math.floor(rng() * COLORS.length) + 1;
               newState.nextPiece = { shape, color };
             }
 
-            // Usa a próxima peça como peça ativa
             const minX = Math.min(...newState.nextPiece.shape.map(([x]) => x));
             const maxX = Math.max(...newState.nextPiece.shape.map(([x]) => x));
             const startX = Math.floor((C_W - (maxX - minX + 1)) / 2) - minX;
@@ -451,28 +438,25 @@ export function useGameLogic() {
               color: newState.nextPiece.color,
             };
 
+            // Garante que a peça seja válida
+            if (newPiece.x < 0 || newPiece.x >= C_W) {
+              newPiece.x = Math.max(0, Math.min(C_W - 1, newPiece.x));
+            }
+
             if (lastSpawnFrameRef.current !== frameCountRef.current) {
-              piecesCountRef.current++;
-              console.log(`🎮 Peça #${piecesCountRef.current} spawnada em (${newPiece.x}, ${newPiece.y})`);
               lastSpawnFrameRef.current = frameCountRef.current;
             }
 
             newState.active = newPiece;
 
-            // Gera a PRÓXIMA peça imediatamente para o usuário ver
             const nextShape = TETROS[Math.floor(rng() * TETROS.length)].map((c) => [...c]);
             const nextColor = Math.floor(rng() * COLORS.length) + 1;
             newState.nextPiece = { shape: nextShape, color: nextColor };
-
-            // Pontuação por peça colocada - torna o jogo mais recompensador
-            newState.score += 10 * newState.level;
           }
           if (newState.active && !collidesCoarseWithSand(newState.active, newState.sand, newState.active.x, newState.active.y + 1)) {
             newState.active.y += 1;
           } else if (newState.active) {
-            // Desintegração imediata
             if (lastLockFrameRef.current !== frameCountRef.current) {
-              console.log(`💥 Peça #${piecesCountRef.current} colidiu e se desintegrou em (${newState.active.x}, ${newState.active.y})`);
               lastLockFrameRef.current = frameCountRef.current;
             }
             const res = lockAndClear(newState.sand, newState.active);
@@ -483,18 +467,11 @@ export function useGameLogic() {
               newState.level = Math.min(12, 1 + Math.floor(newState.score / 500));
             }
 
-            // Verifica game over: se alguma partícula da peça encostou no topo
             if (res.gameOver) {
-              console.log(`💀 GAME OVER! Peça #${piecesCountRef.current} causou game over`);
-              console.log(`📊 Total de peças jogadas: ${piecesCountRef.current}`);
-              console.log(`🎯 Score final: ${newState.score}`);
               newState.gameOver = true;
             } else {
-              // Aguarda a areia se estabilizar
               const stabilizedSand = settle(newState.sand, 3);
               newState.sand = stabilizedSand;
-
-              // Limpa a peça atual para spawnar nova no próximo loop
               newState.active = null;
             }
             lockedThisFrame = true;
@@ -505,14 +482,13 @@ export function useGameLogic() {
           dropsProcessed++;
         }
 
-        // Lock imediato se encostou e não processamos no loop (evita "peça parada" no topo)
+        // Lock imediato se encostou
         if (
           !lockedThisFrame &&
           newState.active &&
           collidesCoarseWithSand(newState.active, newState.sand, newState.active.x, newState.active.y + 1)
         ) {
           if (lastLockFrameRef.current !== frameCountRef.current) {
-            console.log(`💥 Peça #${piecesCountRef.current} colidiu e se desintegrou em (${newState.active.x}, ${newState.active.y})`);
             lastLockFrameRef.current = frameCountRef.current;
           }
           const res = lockAndClear(newState.sand, newState.active);
@@ -523,9 +499,6 @@ export function useGameLogic() {
             newState.level = Math.min(12, 1 + Math.floor(newState.score / 500));
           }
           if (res.gameOver) {
-            console.log(`💀 GAME OVER! Peça #${piecesCountRef.current} causou game over`);
-            console.log(`📊 Total de peças jogadas: ${piecesCountRef.current}`);
-            console.log(`🎯 Score final: ${newState.score}`);
             newState.gameOver = true;
           } else {
             const stabilizedSand = settle(newState.sand, 3);
@@ -534,9 +507,8 @@ export function useGameLogic() {
           }
         }
 
-        // Effects - ultra otimizado
-        if (effAccRef.current >= 8) {
-          // Reduzido para 8ms
+        // Effects
+        if (effAccRef.current >= 16) {
           newState.flashes = newState.flashes.filter((f) => --f.ttl > 0);
           newState.popups = newState.popups.filter((p) => {
             p.ttl -= 1;
@@ -545,7 +517,6 @@ export function useGameLogic() {
           });
           newState.clearingAnimations = newState.clearingAnimations.filter((a) => --a.ttl > 0);
 
-          // Adiciona animações pendentes
           if (pendingAnimationsRef.current.length > 0) {
             newState.clearingAnimations = [...newState.clearingAnimations, ...pendingAnimationsRef.current];
             pendingAnimationsRef.current = [];
@@ -557,7 +528,7 @@ export function useGameLogic() {
           effAccRef.current = 0;
         }
 
-        // Calcula o ghost (sombra da peça) se há uma peça ativa
+        // Calcula o ghost
         if (newState.active) {
           newState.ghost = calculateGhost(newState.active, newState.sand);
         } else {
@@ -567,7 +538,6 @@ export function useGameLogic() {
         return newState;
       });
 
-      // Game loop sem throttle para máxima responsividade
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     },
     [stepSandFine, clearMonochromeFine, clearBridgesFine, settle, collidesCoarseWithSand, lockAndClear, calculateGhost, isMounted]
@@ -576,14 +546,7 @@ export function useGameLogic() {
   // Game controls
   const reset = useCallback(() => {
     if (!isMounted) return;
-    console.log(`🔄 JOGO REINICIADO! Contador de peças resetado de ${piecesCountRef.current} para 0`);
-    piecesCountRef.current = 0;
     const firstPiece = spawnPiece();
-    if (firstPiece) {
-      piecesCountRef.current++;
-      console.log(`🎮 Peça #${piecesCountRef.current} spawnada em (${firstPiece.x}, ${firstPiece.y})`);
-    }
-    // Gera a primeira próxima peça
     const firstNextShape = TETROS[Math.floor(rng() * TETROS.length)].map((c) => [...c]);
     const firstNextColor = Math.floor(rng() * COLORS.length) + 1;
     const firstNextPiece = { shape: firstNextShape, color: firstNextColor };
@@ -614,6 +577,9 @@ export function useGameLogic() {
     dropAccRef.current = 0;
     effAccRef.current = 0;
     frameCountRef.current = 0;
+    lastSpawnFrameRef.current = -1;
+    lastLockFrameRef.current = -1;
+    keyPressTimeRef.current = {};
   }, [spawnPiece, calculateGhost, isMounted]);
 
   const togglePause = useCallback(() => {
@@ -625,7 +591,8 @@ export function useGameLogic() {
     (fast: boolean) => {
       if (!isMounted) return;
       setGameState((prev) => ({ ...prev, fastDrop: fast }));
-      if (fast) dropAccRef.current = 0;
+      // Reset do acumulador quando muda o modo de queda
+      dropAccRef.current = 0;
     },
     [isMounted]
   );
@@ -637,7 +604,16 @@ export function useGameLogic() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (gameState.gameOver || gameState.paused || !gameState.active) return;
 
-      switch (e.key.toLowerCase()) {
+      const now = Date.now();
+      const key = e.key.toLowerCase();
+
+      // Previne spam de teclas (mínimo 50ms entre pressionamentos)
+      if (keyPressTimeRef.current[key] && now - keyPressTimeRef.current[key] < 50) {
+        return;
+      }
+      keyPressTimeRef.current[key] = now;
+
+      switch (key) {
         case "p":
           togglePause();
           break;
@@ -665,7 +641,6 @@ export function useGameLogic() {
           });
           break;
         case "w":
-          // Rotação 90° (sentido horário)
           setGameState((prev) => {
             if (!prev.active) return prev;
             const rotatedShape = rotatePiece(prev.active.shape);
@@ -677,7 +652,6 @@ export function useGameLogic() {
           });
           break;
         case "s":
-          // Rotação 180°
           setGameState((prev) => {
             if (!prev.active) return prev;
             const rotatedShape = rotatePiece180(prev.active.shape);
@@ -696,8 +670,10 @@ export function useGameLogic() {
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.code === "Space") {
+      if (e.key === " " || e.code === "Space") {
         setFastDrop(false);
+        // Previne que a tecla espaço cause scroll da página
+        e.preventDefault();
       }
     };
 

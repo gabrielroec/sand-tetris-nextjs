@@ -4,17 +4,12 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RotateCcw, Trophy } from "lucide-react";
 import { GameCanvas } from "@/components/GameCanvas";
+import { MobileControls } from "@/components/MobileControls";
+import { MobileScorePanel } from "@/components/MobileScorePanel";
 import { useGameLogic } from "@/hooks/useGameLogic";
 
 export default function Home() {
   const { score, level, gameOver, paused, fastDrop, reset, togglePause, gameState } = useGameLogic();
-
-  // Debug: rastrear quando o modal do game over aparece
-  React.useEffect(() => {
-    if (gameOver) {
-      console.log(`🚨 MODAL GAME OVER APARECEU! Score: ${score}, Level: ${level}`);
-    }
-  }, [gameOver, score, level]);
 
   return (
     <>
@@ -197,6 +192,57 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Controles Mobile */}
+      <MobileControls
+        onMoveLeft={() => {
+          if (!gameOver && !paused && gameState.active) {
+            const event = new KeyboardEvent("keydown", { key: "a" });
+            window.dispatchEvent(event);
+          }
+        }}
+        onMoveRight={() => {
+          if (!gameOver && !paused && gameState.active) {
+            const event = new KeyboardEvent("keydown", { key: "d" });
+            window.dispatchEvent(event);
+          }
+        }}
+        onRotate90={() => {
+          if (!gameOver && !paused && gameState.active) {
+            const event = new KeyboardEvent("keydown", { key: "w" });
+            window.dispatchEvent(event);
+          }
+        }}
+        onRotate180={() => {
+          if (!gameOver && !paused && gameState.active) {
+            const event = new KeyboardEvent("keydown", { key: "s" });
+            window.dispatchEvent(event);
+          }
+        }}
+        onFastDrop={() => {
+          if (!gameOver && !paused && gameState.active) {
+            const event = new KeyboardEvent("keydown", { key: " " });
+            window.dispatchEvent(event);
+          }
+        }}
+        onTogglePause={togglePause}
+        onRestart={reset}
+        paused={paused}
+        fastDrop={fastDrop}
+      />
+
+      {/* Painel de Score Mobile */}
+      <MobileScorePanel
+        score={score}
+        level={level}
+        combo={gameState.combo}
+        comboMultiplier={gameState.comboMultiplier}
+        nextPiece={gameState.nextPiece}
+        paused={paused}
+        fastDrop={fastDrop}
+        onReset={reset}
+        onTogglePause={togglePause}
+      />
     </>
   );
 }

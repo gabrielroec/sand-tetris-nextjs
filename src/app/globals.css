@@ -47,10 +47,10 @@ body::before {
     radial-gradient(1px 1px at 130px 80px, #ffffff08, transparent), radial-gradient(1px 1px at 160px 30px, #ffffff15, transparent);
   background-repeat: repeat;
   background-size: 200px 100px;
-  animation: sparkle 30s linear infinite; /* Mais lento para melhor performance */
+  animation: sparkle 60s linear infinite; /* Muito mais lento para melhor performance */
   pointer-events: none;
   z-index: -1;
-  will-change: transform; /* Otimização de performance */
+  will-change: transform;
 }
 
 @keyframes sparkle {
@@ -208,10 +208,14 @@ h1 {
 }
 
 canvas {
-  display: block;
+  display: block !important;
   border-radius: 12px;
-  background: #000;
+  background: #000 !important;
   border: 1px solid #ffffff33;
+  min-width: 336px; /* C_W * CELL = 12 * 28 */
+  min-height: 616px; /* C_H * CELL = 22 * 28 */
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .overlay {
@@ -250,7 +254,7 @@ canvas {
 @media (max-width: 768px) {
   body {
     padding: 8px;
-    padding-bottom: 120px; /* Espaço para controles mobile */
+    padding-bottom: 140px; /* Espaço para controles mobile */
   }
 
   .wrap {
@@ -262,15 +266,29 @@ canvas {
   .stage {
     padding: 8px;
     margin-bottom: 0;
+    display: block !important; /* Forçar exibição do stage no mobile */
+    background: linear-gradient(180deg, #0b0f1c, #070a14) !important;
+    border: 2px solid #a78bfa66 !important;
+    border-radius: 20px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
-  .panel {
-    display: none; /* Painel desktop oculto no mobile */
+  /* Ocultar apenas o painel de score no mobile, manter o stage */
+  .wrap > .panel:last-child {
+    display: none !important; /* Painel de score oculto no mobile */
+  }
+
+  /* Garantir que o stage seja visível */
+  .wrap > .stage {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
   /* Ocultar controles desktop no mobile */
   .grid-hint {
-    display: none;
+    display: none !important;
   }
 
   /* Ajustar header para mobile */
@@ -282,6 +300,28 @@ canvas {
   .muted {
     font-size: 0.8rem;
   }
+
+  /* Debug: garantir que o canvas seja visível */
+  .stage canvas {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: #000 !important;
+  }
+
+  /* Ajustar canvas para mobile */
+  canvas {
+    max-width: 100%;
+    height: auto;
+    position: relative;
+    z-index: 1;
+    min-width: 280px; /* Menor para mobile */
+    min-height: 500px; /* Menor para mobile */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: #000 !important;
+  }
 }
 
 @media (min-width: 769px) {
@@ -289,6 +329,14 @@ canvas {
   .mobile-controls,
   .mobile-score-panel {
     display: none !important;
+  }
+
+  /* Garantir que o canvas seja visível no desktop */
+  canvas {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: #000 !important;
   }
 }
 
@@ -301,6 +349,14 @@ canvas {
     --muted: #b6c0d9;
     --accent: #a78bfa;
   }
+
+  /* Garantir que o canvas seja visível no dark mode */
+  canvas {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: #000 !important;
+  }
 }
 
 /* High contrast mode */
@@ -308,6 +364,14 @@ canvas {
   .panel {
     background: rgba(0, 0, 0, 0.8);
     border: 2px solid rgba(255, 255, 255, 0.8);
+  }
+
+  /* Garantir que o canvas seja visível no high contrast */
+  canvas {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: #000 !important;
   }
 }
 
@@ -317,5 +381,13 @@ canvas {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /* Garantir que o canvas seja visível no reduced motion */
+  canvas {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: #000 !important;
   }
 }
