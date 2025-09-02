@@ -32,6 +32,8 @@ export default function Home() {
           <GameCanvas gameState={gameState} />
           <div className="grid-hint muted">
             <div>A/D: Move</div>
+            <div>W: Rotate 90°</div>
+            <div>S: Rotate 180°</div>
             <div>Space: Fast Drop</div>
             <div>P/R: Pause/Restart</div>
           </div>
@@ -52,6 +54,72 @@ export default function Home() {
           >
             {level}
           </div>
+
+          {/* Combo Display */}
+          {gameState.combo > 0 && (
+            <div style={{ marginTop: "12px" }}>
+              <div className="label">Combo</div>
+              <div
+                style={{
+                  fontSize: "20px",
+                  fontWeight: "800",
+                  color: "#ff6b6b",
+                  textShadow: "0 0 16px rgba(255, 107, 107, 0.5)",
+                  textAlign: "center",
+                }}
+              >
+                x{gameState.comboMultiplier} ({gameState.combo})
+              </div>
+            </div>
+          )}
+
+          {/* Next Piece */}
+          {gameState.nextPiece && (
+            <div style={{ marginTop: "16px" }}>
+              <div className="label">Próxima</div>
+              <div
+                style={{
+                  background: "#1f2937",
+                  border: "1px solid #374151",
+                  borderRadius: "8px",
+                  padding: "12px",
+                  textAlign: "center",
+                  marginTop: "8px",
+                }}
+              >
+                <svg width="80" height="80" viewBox="0 0 80 80" style={{ margin: "0 auto" }}>
+                  {gameState.nextPiece.shape.map(([dx, dy], index) => {
+                    // Calcula o centro da peça para centralizar melhor
+                    const minX = Math.min(...gameState.nextPiece.shape.map(([x]) => x));
+                    const maxX = Math.max(...gameState.nextPiece.shape.map(([x]) => x));
+                    const minY = Math.min(...gameState.nextPiece.shape.map(([, y]) => y));
+                    const maxY = Math.max(...gameState.nextPiece.shape.map(([, y]) => y));
+
+                    const centerX = (4 - (maxX - minX + 1)) / 2 - minX;
+                    const centerY = (4 - (maxY - minY + 1)) / 2 - minY;
+
+                    const x = (centerX + dx) * 20;
+                    const y = (centerY + dy) * 20;
+                    const colors = ["#f87171", "#60a5fa", "#34d399", "#fbbf24", "#a78bfa"];
+                    return (
+                      <rect
+                        key={index}
+                        x={x}
+                        y={y}
+                        width="20"
+                        height="20"
+                        fill={colors[gameState.nextPiece.color - 1]}
+                        stroke="#374151"
+                        strokeWidth="1"
+                        rx="2"
+                      />
+                    );
+                  })}
+                </svg>
+              </div>
+            </div>
+          )}
+
           <hr style={{ border: "none", borderTop: "1px solid #ffffff22", margin: "14px 0" }} />
 
           {/* Fast Drop Indicator */}
