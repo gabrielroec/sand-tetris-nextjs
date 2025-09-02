@@ -4,6 +4,8 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RotateCcw, Trophy } from "lucide-react";
 import { GameCanvas } from "@/components/GameCanvas";
+import { MobileControls } from "@/components/MobileControls";
+import { MobileScorePanel } from "@/components/MobileScorePanel";
 import { useGameLogic } from "@/hooks/useGameLogic";
 
 export default function Home() {
@@ -197,6 +199,53 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Controles Mobile */}
+      <MobileControls
+        onMoveLeft={() => {
+          // Simular tecla A
+          const event = new KeyboardEvent("keydown", { key: "a" });
+          window.dispatchEvent(event);
+        }}
+        onMoveRight={() => {
+          // Simular tecla D
+          const event = new KeyboardEvent("keydown", { key: "d" });
+          window.dispatchEvent(event);
+        }}
+        onRotate90={() => {
+          // Simular tecla W
+          const event = new KeyboardEvent("keydown", { key: "w" });
+          window.dispatchEvent(event);
+        }}
+        onRotate180={() => {
+          // Simular tecla S
+          const event = new KeyboardEvent("keydown", { key: "s" });
+          window.dispatchEvent(event);
+        }}
+        onFastDrop={() => {
+          // Simular tecla Space
+          const event = new KeyboardEvent("keydown", { key: " " });
+          window.dispatchEvent(event);
+        }}
+        onTogglePause={togglePause}
+        onRestart={reset}
+        paused={paused}
+        fastDrop={fastDrop}
+      />
+
+      {/* Painel de Score Mobile */}
+      <MobileScorePanel
+        score={score}
+        level={level}
+        combo={gameState.combo}
+        comboMultiplier={gameState.comboMultiplier}
+        nextPiece={gameState.nextPiece}
+        gameOver={gameOver}
+        paused={paused}
+        fastDrop={fastDrop}
+        onReset={reset}
+        onTogglePause={togglePause}
+      />
     </>
   );
 }
