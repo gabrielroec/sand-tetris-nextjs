@@ -64,9 +64,11 @@ body::before {
 
 .wrap {
   display: grid;
-  grid-template-columns: auto 280px;
+  grid-template-columns: 1fr 280px;
   gap: 20px;
   align-items: start;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .panel {
@@ -87,6 +89,7 @@ body::before {
   box-shadow: 0 0 50px rgba(167, 139, 250, 0.4);
   z-index: 1;
   width: fit-content;
+  min-width: 0;
 }
 
 h1 {
@@ -240,6 +243,7 @@ canvas {
   .wrap {
     grid-template-columns: 1fr;
     gap: 15px;
+    max-width: 100%;
   }
 
   body {

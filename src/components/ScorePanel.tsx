@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Trophy, Zap } from "lucide-react";
+import { NextPieceDisplay } from "./NextPieceDisplay";
 
 interface ScorePanelProps {
   score: number;
@@ -9,11 +10,12 @@ interface ScorePanelProps {
   gameOver: boolean;
   paused: boolean;
   fastDrop: boolean;
+  nextPiece: { shape: number[][]; color: number } | null;
   onReset: () => void;
   onTogglePause: () => void;
 }
 
-export function ScorePanel({ score, level, gameOver, paused, fastDrop, onReset, onTogglePause }: ScorePanelProps) {
+export function ScorePanel({ score, level, gameOver, paused, fastDrop, nextPiece, onReset, onTogglePause }: ScorePanelProps) {
   return (
     <motion.div
       initial={{ opacity: 0, x: 50 }}
@@ -49,6 +51,11 @@ export function ScorePanel({ score, level, gameOver, paused, fastDrop, onReset, 
         >
           {level}
         </div>
+      </div>
+
+      {/* Next Piece */}
+      <div className="mb-6">
+        <NextPieceDisplay nextPiece={nextPiece} />
       </div>
 
       <div className="border-t border-slate-700/50 pt-6">

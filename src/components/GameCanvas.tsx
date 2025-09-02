@@ -7,7 +7,7 @@ interface GameCanvasProps {
   gameState: GameState;
 }
 
-const C_W = 10,
+const C_W = 12,
   C_H = 22,
   CELL = 28;
 const SUB = 4,
@@ -56,6 +56,18 @@ export function GameCanvas({ gameState }: GameCanvasProps) {
         ctx.arc(cx + px / 2, cy + px / 2, px / 2 - 0.5, 0, Math.PI * 2);
         ctx.fill();
       }
+    }
+
+    // Render ghost piece (sombra) - otimizado
+    if (gameState.ghost) {
+      ctx.globalAlpha = 0.3;
+      ctx.fillStyle = COLORS[gameState.ghost.color - 1];
+      for (const [dx, dy] of gameState.ghost.shape) {
+        const x = (gameState.ghost.x + dx) * CELL;
+        const y = (gameState.ghost.y + dy) * CELL;
+        ctx.fillRect(x, y, CELL, CELL);
+      }
+      ctx.globalAlpha = 1;
     }
 
     // Render active piece - otimizado
@@ -118,37 +130,40 @@ export function GameCanvas({ gameState }: GameCanvasProps) {
         const progress = 1 - anim.ttl / (anim.type === "line" ? 15 : 20);
 
         if (anim.type === "line") {
-          // Piscar branco intenso para linhas
-          const alpha = Math.sin(progress * Math.PI * 4) * 0.5 + 0.5; // Piscar 4 vezes
+          // Piscar branco intenso para linhas - MAIS EMPOLGANTE
+          const alpha = Math.sin(progress * Math.PI * 6) * 0.5 + 0.5; // Piscar 6 vezes
+          const scale = 1 + progress * 0.3; // Cresce mais
           ctx.globalAlpha = alpha;
           ctx.fillStyle = "#ffffff";
 
-          // Renderiza círculo branco piscante
-          ctx.beginPath();
-          ctx.arc(cx + CELL / SUB / 2, cy + CELL / SUB / 2, CELL / SUB / 2 - 0.5, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Efeito de brilho
-          ctx.globalAlpha = alpha * 0.3;
-          ctx.beginPath();
-          ctx.arc(cx + CELL / SUB / 2, cy + CELL / SUB / 2, CELL / SUB / 2 + 1, 0, Math.PI * 2);
-          ctx.fill();
-        } else if (anim.type === "bridge") {
-          // Piscar branco para pontes
-          const alpha = Math.sin(progress * Math.PI * 3) * 0.5 + 0.5; // Piscar 3 vezes
-          const scale = 1 + progress * 0.2;
-          ctx.globalAlpha = alpha;
-          ctx.fillStyle = "#ffffff";
-
-          // Renderiza círculo branco piscante
+          // Renderiza círculo branco piscante com escala
           ctx.beginPath();
           ctx.arc(cx + CELL / SUB / 2, cy + CELL / SUB / 2, (CELL / SUB / 2 - 0.5) * scale, 0, Math.PI * 2);
           ctx.fill();
 
-          // Efeito de brilho
-          ctx.globalAlpha = alpha * 0.4;
+          // Efeito de brilho mais intenso
+          ctx.globalAlpha = alpha * 0.5;
+          ctx.fillStyle = "#ffff00"; // Amarelo para mais impacto
           ctx.beginPath();
           ctx.arc(cx + CELL / SUB / 2, cy + CELL / SUB / 2, (CELL / SUB / 2 + 2) * scale, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (anim.type === "bridge") {
+          // Piscar branco para pontes - MAIS EMPOLGANTE
+          const alpha = Math.sin(progress * Math.PI * 5) * 0.5 + 0.5; // Piscar 5 vezes
+          const scale = 1 + progress * 0.4; // Cresce mais
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = "#ffffff";
+
+          // Renderiza círculo branco piscante com escala
+          ctx.beginPath();
+          ctx.arc(cx + CELL / SUB / 2, cy + CELL / SUB / 2, (CELL / SUB / 2 - 0.5) * scale, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Efeito de brilho mais intenso
+          ctx.globalAlpha = alpha * 0.6;
+          ctx.fillStyle = "#00ffff"; // Ciano para mais impacto
+          ctx.beginPath();
+          ctx.arc(cx + CELL / SUB / 2, cy + CELL / SUB / 2, (CELL / SUB / 2 + 3) * scale, 0, Math.PI * 2);
           ctx.fill();
         }
       }
