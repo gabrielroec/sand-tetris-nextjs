@@ -227,7 +227,7 @@ export function useGameLogic() {
     return null;
   }, []);
 
-  const destroyParticlesInRadius = useCallback((sand: number[][], centerX: number, centerY: number, radius: number) => {
+  const destroyParticlesInRadius = useCallback((sand: number[][], centerX: number, centerY: number) => {
     let destroyed = 0;
     const out = sand.map((r) => r.slice());
 
@@ -240,12 +240,6 @@ export function useGameLogic() {
     }
 
     return { newSand: out, destroyed };
-  }, []);
-
-  const calculateArcadeScore = useCallback((destroyed: number, timeLeft: number) => {
-    const baseScore = destroyed * 10;
-    const timeBonus = timeLeft * 5;
-    return baseScore + timeBonus;
   }, []);
 
   const stepSandFine = useCallback(
@@ -569,7 +563,7 @@ export function useGameLogic() {
             const collision = checkBulletCollision(bullet, newState.sand);
             if (collision) {
               // Destrói APENAS a partícula atingida (individual)
-              const result = destroyParticlesInRadius(newState.sand, collision.fx, collision.fy, 1);
+              const result = destroyParticlesInRadius(newState.sand, collision.fx, collision.fy);
               newState.sand = result.newSand;
               newState.destroyedParticles += result.destroyed;
 
@@ -736,7 +730,6 @@ export function useGameLogic() {
       isMounted,
       checkBulletCollision,
       destroyParticlesInRadius,
-      calculateArcadeScore,
     ]
   );
 
@@ -934,7 +927,6 @@ export function useGameLogic() {
     isMounted,
     gameState.arcadeMode,
     gameState.plane,
-    C_W,
   ]);
 
   // Start game loop

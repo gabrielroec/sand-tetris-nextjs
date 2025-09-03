@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Zap, Play, Pause, RotateCcw } from "lucide-react";
+import { GameState } from "../hooks/useGameLogic";
 
 interface MobileControlsProps {
   onMoveLeft: () => void;
@@ -13,7 +14,7 @@ interface MobileControlsProps {
   onRestart: () => void;
   paused: boolean;
   fastDrop: boolean;
-  gameState: any;
+  gameState: GameState;
   gameOver: boolean;
 }
 

@@ -12,7 +12,7 @@ import { useGameLogic, GameState } from "@/hooks/useGameLogic";
 const C_W = 12;
 
 export default function Home() {
-  const { score, level, gameOver, paused, fastDrop, reset, togglePause, gameState, activateMasterMode, setGameState } = useGameLogic();
+  const { score, level, gameOver, paused, fastDrop, reset, togglePause, gameState, setGameState } = useGameLogic();
 
   return (
     <>
