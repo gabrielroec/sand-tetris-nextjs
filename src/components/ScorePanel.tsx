@@ -54,8 +54,28 @@ export function ScorePanel({ score, level, paused, fastDrop, nextPiece, onReset,
 
       {/* Next Piece */}
       <div className="mb-6">
+        <div className="text-sm text-gray-300 mb-2">Próxima Peça</div>
         <NextPieceDisplay nextPiece={nextPiece} />
       </div>
+
+      {/* Arcade Mode Interface */}
+      {/* gameState is not defined in this component, so this block will be commented out or removed if not provided */}
+      {/* {gameState.arcadeMode && (
+        <div className="bg-red-900/50 border border-red-500 rounded-lg p-4 mb-4">
+          <div className="text-red-300 font-bold text-center mb-2">🎮 ARCADE MODE</div>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="text-yellow-300">
+              ⏱️ Tempo: {Math.ceil(gameState.arcadeTimeLeft)}s
+            </div>
+            <div className="text-green-300">
+              💥 Destruídas: {gameState.destroyedParticles}
+            </div>
+          </div>
+          <div className="text-center text-xs text-gray-400 mt-2">
+            Use A/D para mover, tiro automático!
+          </div>
+        </div>
+      )} */}
 
       <div className="border-t border-slate-700/50 pt-6">
         {/* Fast Drop Indicator */}

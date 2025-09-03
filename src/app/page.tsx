@@ -6,10 +6,13 @@ import { RotateCcw, Trophy } from "lucide-react";
 import { GameCanvas } from "@/components/GameCanvas";
 import { MobileControls } from "@/components/MobileControls";
 import { MobileScorePanel } from "@/components/MobileScorePanel";
-import { useGameLogic } from "@/hooks/useGameLogic";
+import { useGameLogic, GameState } from "@/hooks/useGameLogic";
+
+// Game constants
+const C_W = 12;
 
 export default function Home() {
-  const { score, level, gameOver, paused, fastDrop, reset, togglePause, gameState } = useGameLogic();
+  const { score, level, gameOver, paused, fastDrop, reset, togglePause, gameState, activateMasterMode, setGameState } = useGameLogic();
 
   return (
     <>
@@ -115,6 +118,28 @@ export default function Home() {
             </div>
           )}
 
+          {/* Arcade Mode Interface */}
+          {gameState.arcadeMode && (
+            <div style={{ marginTop: "16px" }}>
+              <div
+                style={{
+                  background: "linear-gradient(135deg, #dc2626, #991b1b)",
+                  border: "2px solid #ef4444",
+                  borderRadius: "8px",
+                  padding: "12px",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ color: "#fecaca", fontWeight: "bold", fontSize: "14px", marginBottom: "8px" }}>🎮 ARCADE MODE</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "12px" }}>
+                  <div style={{ color: "#fbbf24" }}>⏱️ {Math.ceil(gameState.arcadeTimeLeft)}s</div>
+                  <div style={{ color: "#34d399" }}>💥 {gameState.destroyedParticles}</div>
+                </div>
+                <div style={{ color: "#9ca3af", fontSize: "10px", marginTop: "6px" }}>Use A/D para mover, tiro automático!</div>
+              </div>
+            </div>
+          )}
+
           <hr style={{ border: "none", borderTop: "1px solid #ffffff22", margin: "14px 0" }} />
 
           {/* Fast Drop Indicator */}
@@ -142,6 +167,21 @@ export default function Home() {
           <button id="btn-restart" className="btn" style={{ marginTop: "8px", background: "#f59e0b66" }} onClick={reset}>
             Restart (R)
           </button>
+
+          {/* Master Mode Button */}
+          {/* <button
+            className="btn"
+            style={{
+              marginTop: "8px",
+              background: "#dc262666",
+              borderColor: "#ef4444",
+              fontSize: "12px",
+            }}
+            onClick={activateMasterMode}
+          >
+            🎮 MASTER MODE
+          </button> */}
+
           <p className="muted" style={{ marginTop: "10px" }}>
             Linhas monocromáticas e pontes limpam na hora.
           </p>
@@ -196,15 +236,33 @@ export default function Home() {
       {/* Controles Mobile */}
       <MobileControls
         onMoveLeft={() => {
-          if (!gameOver && !paused && gameState.active) {
-            const event = new KeyboardEvent("keydown", { key: "a" });
-            window.dispatchEvent(event);
+          if (!gameOver && !paused) {
+            if (gameState.arcadeMode && gameState.plane) {
+              // Controle do avião no modo arcade - MOVIMENTO SUB-PIXEL RÁPIDO
+              setGameState((prev: GameState) => ({
+                ...prev,
+                plane: { ...prev.plane!, x: Math.max(0, prev.plane!.x - 0.15) },
+              }));
+            } else if (gameState.active) {
+              // Controle normal do Tetris
+              const event = new KeyboardEvent("keydown", { key: "a" });
+              window.dispatchEvent(event);
+            }
           }
         }}
         onMoveRight={() => {
-          if (!gameOver && !paused && gameState.active) {
-            const event = new KeyboardEvent("keydown", { key: "d" });
-            window.dispatchEvent(event);
+          if (!gameOver && !paused) {
+            if (gameState.arcadeMode && gameState.plane) {
+              // Controle do avião no modo arcade - MOVIMENTO SUB-PIXEL RÁPIDO
+              setGameState((prev: GameState) => ({
+                ...prev,
+                plane: { ...prev.plane!, x: Math.min(C_W - 1, prev.plane!.x + 0.15) },
+              }));
+            } else if (gameState.active) {
+              // Controle normal do Tetris
+              const event = new KeyboardEvent("keydown", { key: "d" });
+              window.dispatchEvent(event);
+            }
           }
         }}
         onRotate90={() => {
@@ -229,6 +287,8 @@ export default function Home() {
         onRestart={reset}
         paused={paused}
         fastDrop={fastDrop}
+        gameState={gameState}
+        gameOver={gameOver}
       />
 
       {/* Painel de Score Mobile */}

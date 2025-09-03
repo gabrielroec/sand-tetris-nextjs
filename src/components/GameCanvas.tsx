@@ -92,6 +92,35 @@ export function GameCanvas({ gameState }: GameCanvasProps) {
       }
     }
 
+    // Render arcade mode elements - VERIFICAÇÃO DUPLA
+    if (gameState.arcadeMode === true && gameState.plane !== null && gameState.arcadeTimeLeft > 0) {
+      console.log(
+        "🎮 Renderizando avião - arcadeMode:",
+        gameState.arcadeMode,
+        "plane:",
+        gameState.plane,
+        "timeLeft:",
+        gameState.arcadeTimeLeft
+      );
+      // Render avião
+      ctx.fillStyle = "#ff6b6b";
+      ctx.fillRect(gameState.plane.x * CELL, gameState.plane.y * CELL, CELL, CELL);
+
+      // Detalhes do avião
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(gameState.plane.x * CELL + 2, gameState.plane.y * CELL + 2, CELL - 4, CELL - 4);
+    }
+
+    // Render projéteis - VERIFICAÇÃO DUPLA
+    if (gameState.arcadeMode === true && gameState.bullets.length > 0 && gameState.arcadeTimeLeft > 0) {
+      ctx.fillStyle = "#ffff00";
+      gameState.bullets.forEach((bullet) => {
+        ctx.beginPath();
+        ctx.arc(bullet.x * CELL, bullet.y * CELL, 3, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
     // Render grid - otimizado
     ctx.globalAlpha = 0.06; // Menos intenso
     ctx.strokeStyle = "#fff";
@@ -122,53 +151,28 @@ export function GameCanvas({ gameState }: GameCanvasProps) {
       ctx.globalAlpha = 1;
     }
 
-    // Render clearing animations - otimizado com piscar branco
-    if (gameState.clearingAnimations.length > 0) {
-      for (const anim of gameState.clearingAnimations) {
-        const cx = Math.floor(anim.x / SUB) * CELL + (anim.x % SUB) * (CELL / SUB);
-        const cy = Math.floor(anim.y / SUB) * CELL + (anim.y % SUB) * (CELL / SUB);
-        const progress = 1 - anim.ttl / (anim.type === "line" ? 15 : 20);
+    // Render clearing animations
+    gameState.clearingAnimations.forEach((anim) => {
+      const alpha = anim.ttl / 20;
+      ctx.globalAlpha = alpha;
 
-        if (anim.type === "line") {
-          // Piscar branco intenso para linhas - MAIS EMPOLGANTE
-          const alpha = Math.sin(progress * Math.PI * 6) * 0.5 + 0.5; // Piscar 6 vezes
-          const scale = 1 + progress * 0.3; // Cresce mais
-          ctx.globalAlpha = alpha;
-          ctx.fillStyle = "#ffffff";
-
-          // Renderiza círculo branco piscante com escala
-          ctx.beginPath();
-          ctx.arc(cx + CELL / SUB / 2, cy + CELL / SUB / 2, (CELL / SUB / 2 - 0.5) * scale, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Efeito de brilho mais intenso
-          ctx.globalAlpha = alpha * 0.5;
-          ctx.fillStyle = "#ffff00"; // Amarelo para mais impacto
-          ctx.beginPath();
-          ctx.arc(cx + CELL / SUB / 2, cy + CELL / SUB / 2, (CELL / SUB / 2 + 2) * scale, 0, Math.PI * 2);
-          ctx.fill();
-        } else if (anim.type === "bridge") {
-          // Piscar branco para pontes - MAIS EMPOLGANTE
-          const alpha = Math.sin(progress * Math.PI * 5) * 0.5 + 0.5; // Piscar 5 vezes
-          const scale = 1 + progress * 0.4; // Cresce mais
-          ctx.globalAlpha = alpha;
-          ctx.fillStyle = "#ffffff";
-
-          // Renderiza círculo branco piscante com escala
-          ctx.beginPath();
-          ctx.arc(cx + CELL / SUB / 2, cy + CELL / SUB / 2, (CELL / SUB / 2 - 0.5) * scale, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Efeito de brilho mais intenso
-          ctx.globalAlpha = alpha * 0.6;
-          ctx.fillStyle = "#00ffff"; // Ciano para mais impacto
-          ctx.beginPath();
-          ctx.arc(cx + CELL / SUB / 2, cy + CELL / SUB / 2, (CELL / SUB / 2 + 3) * scale, 0, Math.PI * 2);
-          ctx.fill();
-        }
+      if (anim.type === "line") {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(anim.x * px, anim.y * px, px, px);
+      } else if (anim.type === "bridge") {
+        ctx.fillStyle = "#00ffff";
+        ctx.fillRect(anim.x * px, anim.y * px, px, px);
+      } else if (anim.type === "explosion") {
+        // Efeito de explosão pequeno e controlado
+        const radius = Math.max(1, Math.min(8, (15 - anim.ttl) * 0.8)); // Máximo 8 pixels
+        ctx.fillStyle = "#ff4444";
+        ctx.beginPath();
+        ctx.arc(anim.x * px + px / 2, anim.y * px + px / 2, radius, 0, Math.PI * 2);
+        ctx.fill();
       }
+
       ctx.globalAlpha = 1;
-    }
+    });
 
     // Render popups - otimizado
     if (gameState.popups.length > 0) {

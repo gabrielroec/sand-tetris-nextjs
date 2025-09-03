@@ -70,6 +70,15 @@ export interface GameState {
   flashes: Array<{ x: number; y: number; ttl: number }>;
   popups: Array<{ x: number; y: number; text: string; ttl: number; vy: number }>;
   clearingAnimations: Array<{ x: number; y: number; ttl: number; type: string; color: number }>;
+  // Mini-game arcade properties
+  arcadeMode: boolean;
+  arcadeScore: number;
+  arcadeTimeLeft: number;
+  arcadeCompleted: boolean;
+  plane: { x: number; y: number } | null;
+  bullets: Array<{ x: number; y: number; vx: number; vy: number; ttl: number }>;
+  destroyedParticles: number;
+  lastShotTime: number;
 }
 
 export function useGameLogic() {
@@ -91,6 +100,15 @@ export function useGameLogic() {
     flashes: [],
     popups: [],
     clearingAnimations: [],
+    // Mini-game arcade properties
+    arcadeMode: false,
+    arcadeScore: 0,
+    arcadeTimeLeft: 0,
+    arcadeCompleted: false,
+    plane: null,
+    bullets: [],
+    destroyedParticles: 0,
+    lastShotTime: 0,
   });
 
   // Refs para performance
@@ -181,6 +199,54 @@ export function useGameLogic() {
     },
     [collidesCoarseWithSand]
   );
+
+  // Funções para o mini-game arcade
+  const checkBulletCollision = useCallback((bullet: { x: number; y: number }, sand: number[][]) => {
+    // Converte posição do projétil para coordenadas de pixel
+    const centerX = Math.floor(bullet.x * SUB);
+    const centerY = Math.floor(bullet.y * SUB);
+
+    // Verifica em uma área 5x5 para cobrir TODAS as lacunas possíveis
+    for (let dy = -2; dy <= 2; dy++) {
+      for (let dx = -2; dx <= 2; dx++) {
+        const pixelX = centerX + dx;
+        const pixelY = centerY + dy;
+
+        // Verifica se está dentro dos limites
+        if (pixelY >= 0 && pixelY < F_H && pixelX >= 0 && pixelX < F_W) {
+          if (sand[pixelY][pixelX] !== 0) {
+            return {
+              fx: pixelX,
+              fy: pixelY,
+              color: sand[pixelY][pixelX],
+            };
+          }
+        }
+      }
+    }
+    return null;
+  }, []);
+
+  const destroyParticlesInRadius = useCallback((sand: number[][], centerX: number, centerY: number, radius: number) => {
+    let destroyed = 0;
+    const out = sand.map((r) => r.slice());
+
+    // Destruição INDIVIDUAL - apenas a partícula atingida pelo projétil
+    if (centerY >= 0 && centerY < F_H && centerX >= 0 && centerX < F_W) {
+      if (out[centerY][centerX] !== 0) {
+        out[centerY][centerX] = 0;
+        destroyed = 1; // Sempre destrói apenas 1 partícula
+      }
+    }
+
+    return { newSand: out, destroyed };
+  }, []);
+
+  const calculateArcadeScore = useCallback((destroyed: number, timeLeft: number) => {
+    const baseScore = destroyed * 10;
+    const timeBonus = timeLeft * 5;
+    return baseScore + timeBonus;
+  }, []);
 
   const stepSandFine = useCallback(
     (g: number[][]) => {
@@ -409,53 +475,203 @@ export function useGameLogic() {
           sandAccRef.current -= 16;
         }
 
-        // Piece falling
-        const base = Math.max(200, 800 - newState.level * 50);
-        const dropInt = newState.fastDrop ? 120 : base;
-        const maxDrops = newState.fastDrop ? 1 : 1;
-        let dropsProcessed = 0;
+        // Trigger do mini-game arcade - A CADA 1000 PONTOS
+        const arcadeThreshold = Math.floor(newState.score / 1000) * 1000;
+        const lastThreshold = Math.floor((newState.score - 10) / 1000) * 1000; // Evita trigger múltiplo
 
-        // Garante que a peça não desapareça quando muda o modo de queda
-        if (newState.active && newState.active.y < 0) {
-          newState.active.y = Math.max(0, newState.active.y);
+        if (newState.score >= 1000 && !newState.arcadeMode && arcadeThreshold > lastThreshold) {
+          newState.arcadeMode = true;
+          newState.arcadeTimeLeft = 10; // APENAS 10 SEGUNDOS
+          newState.plane = { x: C_W / 2, y: 1.0 }; // Posição fluida
+          newState.bullets = [];
+          newState.destroyedParticles = 0;
+          newState.lastShotTime = 0;
+
+          newState.popups.push({
+            x: C_W / 2,
+            y: C_H / 2,
+            text: `ARCADE MODE! (${Math.floor(newState.score / 1000)}º vez)`,
+            ttl: 120,
+            vy: -0.5,
+          });
         }
 
-        while (dropAccRef.current >= dropInt && dropsProcessed < maxDrops) {
-          if (!newState.active) {
-            if (!newState.nextPiece) {
+        // Mini-game arcade logic
+        if (newState.arcadeMode) {
+          // Atualizar tempo
+          newState.arcadeTimeLeft -= dt / 1000;
+
+          // FORÇAR SAÍDA do modo arcade quando tempo <= 0
+          if (newState.arcadeTimeLeft <= 0) {
+            console.log("🎮 FORÇANDO saída do arcade mode - Time left:", newState.arcadeTimeLeft);
+
+            // Pontuação bônus final (já recebeu +10 por cada partícula)
+            const bonusScore = Math.floor(newState.destroyedParticles * 2); // Bônus extra
+
+            // RESET TOTAL E IMEDIATO - FORÇA SAÍDA
+            newState.arcadeMode = false;
+            newState.plane = null;
+            newState.bullets = [];
+            newState.arcadeTimeLeft = 0;
+            newState.destroyedParticles = 0;
+            newState.lastShotTime = 0;
+            newState.score += bonusScore;
+
+            console.log(
+              "🎮 Arcade COMPLETAMENTE desativado - arcadeMode:",
+              newState.arcadeMode,
+              "plane:",
+              newState.plane,
+              "bullets:",
+              newState.bullets.length
+            );
+
+            // Garante que uma nova peça seja spawnada
+            if (!newState.active && !newState.nextPiece) {
               const shape = TETROS[Math.floor(rng() * TETROS.length)].map((c) => [...c]);
               const color = Math.floor(rng() * COLORS.length) + 1;
               newState.nextPiece = { shape, color };
             }
 
-            const minX = Math.min(...newState.nextPiece.shape.map(([x]) => x));
-            const maxX = Math.max(...newState.nextPiece.shape.map(([x]) => x));
-            const startX = Math.floor((C_W - (maxX - minX + 1)) / 2) - minX;
-            const newPiece = {
-              shape: newState.nextPiece.shape,
-              x: Math.max(0, startX),
-              y: -2,
-              color: newState.nextPiece.color,
-            };
+            // Popup de finalização
+            newState.popups.push({
+              x: C_W / 2,
+              y: C_H / 2,
+              text: `ARCADE FINALIZADO! +${bonusScore}`,
+              ttl: 120,
+              vy: -0.5,
+            });
 
-            // Garante que a peça seja válida
-            if (newPiece.x < 0 || newPiece.x >= C_W) {
-              newPiece.x = Math.max(0, Math.min(C_W - 1, newPiece.x));
-            }
-
-            if (lastSpawnFrameRef.current !== frameCountRef.current) {
-              lastSpawnFrameRef.current = frameCountRef.current;
-            }
-
-            newState.active = newPiece;
-
-            const nextShape = TETROS[Math.floor(rng() * TETROS.length)].map((c) => [...c]);
-            const nextColor = Math.floor(rng() * COLORS.length) + 1;
-            newState.nextPiece = { shape: nextShape, color: nextColor };
+            // FORÇA retorno ao Tetris - SAI IMEDIATAMENTE do loop arcade
+            return newState;
           }
-          if (newState.active && !collidesCoarseWithSand(newState.active, newState.sand, newState.active.x, newState.active.y + 1)) {
-            newState.active.y += 1;
-          } else if (newState.active) {
+
+          // Tiro automático a cada 200ms
+          if (newState.plane && frameCountRef.current - newState.lastShotTime > 12) {
+            // ~200ms a 60fps
+            newState.bullets.push({
+              x: newState.plane.x + 0.5,
+              y: newState.plane.y + 1,
+              vx: 0,
+              vy: 1, // Tiro para baixo
+              ttl: 60,
+            });
+            newState.lastShotTime = frameCountRef.current;
+          }
+
+          // Atualizar projéteis
+          newState.bullets = newState.bullets.filter((bullet) => {
+            bullet.x += bullet.vx;
+            bullet.y += bullet.vy;
+            bullet.ttl--;
+
+            // Verificar colisão INDIVIDUAL - uma partícula por vez
+            const collision = checkBulletCollision(bullet, newState.sand);
+            if (collision) {
+              // Destrói APENAS a partícula atingida (individual)
+              const result = destroyParticlesInRadius(newState.sand, collision.fx, collision.fy, 1);
+              newState.sand = result.newSand;
+              newState.destroyedParticles += result.destroyed;
+
+              // PONTUAÇÃO IMEDIATA: +10 pontos por partícula destruída
+              newState.score += result.destroyed * 10;
+
+              // Efeito de explosão pequeno e preciso
+              pendingAnimationsRef.current.push({
+                x: collision.fx,
+                y: collision.fy,
+                ttl: 15, // Duração menor e mais precisa
+                type: "explosion",
+                color: collision.color,
+              });
+
+              return false; // Remove o projétil
+            }
+
+            return bullet.ttl > 0;
+          });
+        }
+
+        // Piece falling (só se não estiver no modo arcade)
+        if (!newState.arcadeMode) {
+          const base = Math.max(200, 800 - newState.level * 50);
+          const dropInt = newState.fastDrop ? 120 : base;
+          const maxDrops = newState.fastDrop ? 1 : 1;
+          let dropsProcessed = 0;
+
+          // Garante que a peça não desapareça quando muda o modo de queda
+          if (newState.active && newState.active.y < 0) {
+            newState.active.y = Math.max(0, newState.active.y);
+          }
+
+          while (dropAccRef.current >= dropInt && dropsProcessed < maxDrops) {
+            if (!newState.active) {
+              if (!newState.nextPiece) {
+                const shape = TETROS[Math.floor(rng() * TETROS.length)].map((c) => [...c]);
+                const color = Math.floor(rng() * COLORS.length) + 1;
+                newState.nextPiece = { shape, color };
+              }
+
+              const minX = Math.min(...newState.nextPiece.shape.map(([x]) => x));
+              const maxX = Math.max(...newState.nextPiece.shape.map(([x]) => x));
+              const startX = Math.floor((C_W - (maxX - minX + 1)) / 2) - minX;
+              const newPiece = {
+                shape: newState.nextPiece.shape,
+                x: Math.max(0, startX),
+                y: -2,
+                color: newState.nextPiece.color,
+              };
+
+              // Garante que a peça seja válida
+              if (newPiece.x < 0 || newPiece.x >= C_W) {
+                newPiece.x = Math.max(0, Math.min(C_W - 1, newPiece.x));
+              }
+
+              if (lastSpawnFrameRef.current !== frameCountRef.current) {
+                lastSpawnFrameRef.current = frameCountRef.current;
+              }
+
+              newState.active = newPiece;
+
+              const nextShape = TETROS[Math.floor(rng() * TETROS.length)].map((c) => [...c]);
+              const nextColor = Math.floor(rng() * COLORS.length) + 1;
+              newState.nextPiece = { shape: nextShape, color: nextColor };
+            }
+            if (newState.active && !collidesCoarseWithSand(newState.active, newState.sand, newState.active.x, newState.active.y + 1)) {
+              newState.active.y += 1;
+            } else if (newState.active) {
+              if (lastLockFrameRef.current !== frameCountRef.current) {
+                lastLockFrameRef.current = frameCountRef.current;
+              }
+              const res = lockAndClear(newState.sand, newState.active);
+              newState.sand = res.grid;
+              if (res.gain > 0) {
+                newState.score += res.gain;
+                newState.scoreFlash = 15;
+                newState.level = Math.min(12, 1 + Math.floor(newState.score / 500));
+              }
+
+              if (res.gameOver) {
+                newState.gameOver = true;
+              } else {
+                const stabilizedSand = settle(newState.sand, 3);
+                newState.sand = stabilizedSand;
+                newState.active = null;
+              }
+              lockedThisFrame = true;
+              dropAccRef.current = 0;
+              break;
+            }
+            dropAccRef.current -= dropInt;
+            dropsProcessed++;
+          }
+
+          // Lock imediato se encostou
+          if (
+            !lockedThisFrame &&
+            newState.active &&
+            collidesCoarseWithSand(newState.active, newState.sand, newState.active.x, newState.active.y + 1)
+          ) {
             if (lastLockFrameRef.current !== frameCountRef.current) {
               lastLockFrameRef.current = frameCountRef.current;
             }
@@ -466,7 +682,6 @@ export function useGameLogic() {
               newState.scoreFlash = 15;
               newState.level = Math.min(12, 1 + Math.floor(newState.score / 500));
             }
-
             if (res.gameOver) {
               newState.gameOver = true;
             } else {
@@ -474,36 +689,6 @@ export function useGameLogic() {
               newState.sand = stabilizedSand;
               newState.active = null;
             }
-            lockedThisFrame = true;
-            dropAccRef.current = 0;
-            break;
-          }
-          dropAccRef.current -= dropInt;
-          dropsProcessed++;
-        }
-
-        // Lock imediato se encostou
-        if (
-          !lockedThisFrame &&
-          newState.active &&
-          collidesCoarseWithSand(newState.active, newState.sand, newState.active.x, newState.active.y + 1)
-        ) {
-          if (lastLockFrameRef.current !== frameCountRef.current) {
-            lastLockFrameRef.current = frameCountRef.current;
-          }
-          const res = lockAndClear(newState.sand, newState.active);
-          newState.sand = res.grid;
-          if (res.gain > 0) {
-            newState.score += res.gain;
-            newState.scoreFlash = 15;
-            newState.level = Math.min(12, 1 + Math.floor(newState.score / 500));
-          }
-          if (res.gameOver) {
-            newState.gameOver = true;
-          } else {
-            const stabilizedSand = settle(newState.sand, 3);
-            newState.sand = stabilizedSand;
-            newState.active = null;
           }
         }
 
@@ -540,7 +725,19 @@ export function useGameLogic() {
 
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     },
-    [stepSandFine, clearMonochromeFine, clearBridgesFine, settle, collidesCoarseWithSand, lockAndClear, calculateGhost, isMounted]
+    [
+      stepSandFine,
+      clearMonochromeFine,
+      clearBridgesFine,
+      settle,
+      collidesCoarseWithSand,
+      lockAndClear,
+      calculateGhost,
+      isMounted,
+      checkBulletCollision,
+      destroyParticlesInRadius,
+      calculateArcadeScore,
+    ]
   );
 
   // Game controls
@@ -572,6 +769,15 @@ export function useGameLogic() {
       flashes: [],
       popups: [],
       clearingAnimations: [],
+      // Mini-game arcade properties
+      arcadeMode: false,
+      arcadeScore: 0,
+      arcadeTimeLeft: 0,
+      arcadeCompleted: false,
+      plane: null,
+      bullets: [],
+      destroyedParticles: 0,
+      lastShotTime: 0,
     });
     sandAccRef.current = 0;
     dropAccRef.current = 0;
@@ -597,12 +803,27 @@ export function useGameLogic() {
     [isMounted]
   );
 
+  // Master mode para testes
+  const activateMasterMode = useCallback(() => {
+    if (!isMounted) return;
+    setGameState((prev) => ({
+      ...prev,
+      score: 1000,
+      arcadeMode: true,
+      arcadeTimeLeft: 10, // 10 SEGUNDOS COMO NO JOGO NORMAL
+      plane: { x: C_W / 2, y: 1.0 }, // Posição fluida
+      bullets: [],
+      destroyedParticles: 0,
+      lastShotTime: 0,
+    }));
+  }, [isMounted]);
+
   // Keyboard controls otimizados
   useEffect(() => {
     if (!isMounted) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (gameState.gameOver || gameState.paused || !gameState.active) return;
+      if (gameState.gameOver || gameState.paused) return;
 
       const now = Date.now();
       const key = e.key.toLowerCase();
@@ -621,24 +842,40 @@ export function useGameLogic() {
           reset();
           break;
         case "a":
-          setGameState((prev) => {
-            if (!prev.active) return prev;
-            const nx = prev.active.x - 1;
-            if (!collidesCoarseWithSand(prev.active, prev.sand, nx, prev.active.y)) {
-              return { ...prev, active: { ...prev.active, x: nx } };
-            }
-            return prev;
-          });
+        case "arrowleft":
+          if (gameState.arcadeMode && gameState.plane) {
+            setGameState((prev) => ({
+              ...prev,
+              plane: { ...prev.plane!, x: Math.max(0, prev.plane!.x - 0.15) }, // Movimento SUB-PIXEL RÁPIDO
+            }));
+          } else if (!gameState.arcadeMode && gameState.active) {
+            setGameState((prev) => {
+              if (!prev.active) return prev;
+              const nx = prev.active.x - 1;
+              if (!collidesCoarseWithSand(prev.active, prev.sand, nx, prev.active.y)) {
+                return { ...prev, active: { ...prev.active, x: nx } };
+              }
+              return prev;
+            });
+          }
           break;
         case "d":
-          setGameState((prev) => {
-            if (!prev.active) return prev;
-            const nx = prev.active.x + 1;
-            if (!collidesCoarseWithSand(prev.active, prev.sand, nx, prev.active.y)) {
-              return { ...prev, active: { ...prev.active, x: nx } };
-            }
-            return prev;
-          });
+        case "arrowright":
+          if (gameState.arcadeMode && gameState.plane) {
+            setGameState((prev) => ({
+              ...prev,
+              plane: { ...prev.plane!, x: Math.min(C_W - 1, prev.plane!.x + 0.15) }, // Movimento SUB-PIXEL RÁPIDO
+            }));
+          } else if (!gameState.arcadeMode && gameState.active) {
+            setGameState((prev) => {
+              if (!prev.active) return prev;
+              const nx = prev.active.x + 1;
+              if (!collidesCoarseWithSand(prev.active, prev.sand, nx, prev.active.y)) {
+                return { ...prev, active: { ...prev.active, x: nx } };
+              }
+              return prev;
+            });
+          }
           break;
         case "w":
           setGameState((prev) => {
@@ -695,6 +932,9 @@ export function useGameLogic() {
     rotatePiece,
     rotatePiece180,
     isMounted,
+    gameState.arcadeMode,
+    gameState.plane,
+    C_W,
   ]);
 
   // Start game loop
@@ -720,8 +960,10 @@ export function useGameLogic() {
     paused: gameState.paused,
     fastDrop: gameState.fastDrop,
     gameState,
+    setGameState,
     reset,
     togglePause,
     setFastDrop,
+    activateMasterMode,
   };
 }
