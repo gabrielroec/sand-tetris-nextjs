@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RotateCcw, Trophy } from "lucide-react";
 import { GameCanvas } from "@/components/GameCanvas";
 import { MobileControls } from "@/components/MobileControls";
-import { MobileScorePanel } from "@/components/MobileScorePanel";
 import { useGameLogic, GameState } from "@/hooks/useGameLogic";
+import SEOHead from "@/components/SEOHead";
 
 // Game constants
 const C_W = 12;
@@ -15,7 +15,14 @@ export default function Home() {
   const { score, level, gameOver, paused, fastDrop, reset, togglePause, gameState, setGameState } = useGameLogic();
 
   return (
-    <>
+    <main role="main" aria-label="Sand Tetris - Jogo Online">
+      <SEOHead
+        gameState={{
+          score: score || 0,
+          level: level || 1,
+          combo: gameState.combo || 0,
+        }}
+      />
       {/* Header */}
       <header style={{ textAlign: "center", marginBottom: "14px" }}>
         <h1>Sand Tetris – HTML5 🎮</h1>
@@ -25,20 +32,20 @@ export default function Home() {
       {/* Main Game Container */}
       <div className="wrap">
         {/* Game Stage */}
-        <div className="stage panel">
+        <section className="stage panel" role="region" aria-label="Área do Jogo">
           <div className="marquee">ONLINE ARCADE</div>
           <GameCanvas gameState={gameState} />
-          <div className="grid-hint muted">
+          <div className="grid-hint muted" role="note" aria-label="Controles do Jogo">
             <div>A/D: Move</div>
             <div>W: Rotate 90°</div>
             <div>S: Rotate 180°</div>
             <div>Space: Fast Drop</div>
             <div>P/R: Pause/Restart</div>
           </div>
-        </div>
+        </section>
 
         {/* Score Panel */}
-        <aside className="panel" style={{ minWidth: "260px" }}>
+        <aside className="panel" style={{ minWidth: "260px" }} role="complementary" aria-label="Painel de Pontuação">
           <div className="label">Score</div>
           <div id="score" className={`big ${gameState.scoreFlash > 0 ? "flash" : ""}`}>
             {score}
@@ -88,16 +95,16 @@ export default function Home() {
                 <svg width="80" height="80" viewBox="0 0 80 80" style={{ margin: "0 auto" }}>
                   {gameState.nextPiece.shape.map(([dx, dy], index) => {
                     // Calcula o centro da peça para centralizar melhor
-                    const minX = Math.min(...gameState.nextPiece!.shape.map(([x]) => x));
-                    const maxX = Math.max(...gameState.nextPiece!.shape.map(([x]) => x));
-                    const minY = Math.min(...gameState.nextPiece!.shape.map(([, y]) => y));
-                    const maxY = Math.max(...gameState.nextPiece!.shape.map(([, y]) => y));
+                    const minX = Math.min(...gameState.nextPiece!.shape.map(([x]) => x || 0));
+                    const maxX = Math.max(...gameState.nextPiece!.shape.map(([x]) => x || 0));
+                    const minY = Math.min(...gameState.nextPiece!.shape.map(([, y]) => y || 0));
+                    const maxY = Math.max(...gameState.nextPiece!.shape.map(([, y]) => y || 0));
 
                     const centerX = (4 - (maxX - minX + 1)) / 2 - minX;
                     const centerY = (4 - (maxY - minY + 1)) / 2 - minY;
 
-                    const x = (centerX + dx) * 20;
-                    const y = (centerY + dy) * 20;
+                    const x = (centerX + (dx || 0)) * 20;
+                    const y = (centerY + (dy || 0)) * 20;
                     const colors = ["#f87171", "#60a5fa", "#34d399", "#fbbf24", "#a78bfa"];
                     return (
                       <rect
@@ -161,10 +168,23 @@ export default function Home() {
             ⚡ QUEDA RÁPIDA ATIVA
           </div>
 
-          <button id="btn-pause" className="btn" onClick={togglePause}>
+          <button
+            id="btn-pause"
+            className="btn"
+            onClick={togglePause}
+            aria-label={paused ? "Retomar jogo" : "Pausar jogo"}
+            title={paused ? "Retomar jogo (P)" : "Pausar jogo (P)"}
+          >
             {paused ? "Resume (P)" : "Pause (P)"}
           </button>
-          <button id="btn-restart" className="btn" style={{ marginTop: "8px", background: "#f59e0b66" }} onClick={reset}>
+          <button
+            id="btn-restart"
+            className="btn"
+            style={{ marginTop: "8px", background: "#f59e0b66" }}
+            onClick={reset}
+            aria-label="Reiniciar jogo"
+            title="Reiniciar jogo (R)"
+          >
             Restart (R)
           </button>
 
@@ -190,7 +210,13 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="muted" style={{ marginTop: "14px", textAlign: "center" }}>
-        Dica: mantenha cores agrupadas para limpar faixas inteiras ✨
+        <p>Dica: mantenha cores agrupadas para limpar faixas inteiras ✨</p>
+        <p style={{ fontSize: "10px", marginTop: "8px" }}>
+          Sand Tetris - Jogo Online Gratuito | Desenvolvido por Gabriel Roec |
+          <a href="https://github.com/gabrielroec1/sand-tetris-nextjs" style={{ color: "inherit", textDecoration: "none" }}>
+            Código Aberto
+          </a>
+        </p>
       </footer>
 
       {/* Game Over Overlay - apenas quando realmente não há espaço */}
@@ -291,18 +317,7 @@ export default function Home() {
         gameOver={gameOver}
       />
 
-      {/* Painel de Score Mobile */}
-      <MobileScorePanel
-        score={score}
-        level={level}
-        combo={gameState.combo}
-        comboMultiplier={gameState.comboMultiplier}
-        nextPiece={gameState.nextPiece}
-        paused={paused}
-        fastDrop={fastDrop}
-        onReset={reset}
-        onTogglePause={togglePause}
-      />
-    </>
+      {/* Painel de Score Mobile - Componente removido para otimização */}
+    </main>
   );
 }

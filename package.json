@@ -1,7 +1,33 @@
 {
-  "name": "sand-tetris-nextjs",
-  "version": "0.1.0",
+  "name": "sand-tetris",
+  "version": "1.0.0",
   "private": true,
+  "description": "Sand Tetris - Jogo Online Gratuito | Arcade HTML5 com gráficos modernos e modo arcade",
+  "keywords": [
+    "tetris",
+    "jogo online",
+    "puzzle game",
+    "arcade",
+    "html5 game",
+    "jogo gratuito",
+    "sand tetris",
+    "jogo de blocos",
+    "mobile game",
+    "desktop game",
+    "nextjs",
+    "react",
+    "typescript"
+  ],
+  "author": "Gabriel Roec <gabrielroec1@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://sandtetris.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gabrielroec1/sand-tetris-nextjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gabrielroec1/sand-tetris-nextjs/issues"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
