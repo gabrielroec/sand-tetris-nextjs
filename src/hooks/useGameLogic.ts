@@ -594,7 +594,7 @@ export function useGameLogic() {
         if (!newState.arcadeMode) {
           const base = Math.max(200, 800 - newState.level * 50);
           const dropInt = newState.fastDrop ? 120 : base;
-          const maxDrops = newState.fastDrop ? 1 : 1;
+          const maxDrops = newState.fastDrop ? 3 : 1; // Permite múltiplas quedas quando fastDrop está ativo
           let dropsProcessed = 0;
 
           // Garante que a peça não desapareça quando muda o modo de queda
