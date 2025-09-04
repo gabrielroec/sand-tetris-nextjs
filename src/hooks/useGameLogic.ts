@@ -779,7 +779,7 @@ export function useGameLogic() {
     lastSpawnFrameRef.current = -1;
     lastLockFrameRef.current = -1;
     keyPressTimeRef.current = {};
-  }, [spawnPiece, calculateGhost, isMounted]);
+  }, [calculateGhost, isMounted]);
 
   const togglePause = useCallback(() => {
     if (!isMounted) return;
