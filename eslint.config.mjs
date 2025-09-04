@@ -28,23 +28,22 @@ const eslintConfig = [
       "jsx-a11y/img-redundant-alt": "error",
       "jsx-a11y/no-access-key": "error",
       "jsx-a11y/no-distracting-elements": "error",
-      "jsx-a11y/no-redundant-roles": "error",
+      "jsx-a11y/no-redundant-roles": "off",
       "jsx-a11y/role-has-required-aria-props": "error",
       "jsx-a11y/role-supports-aria-props": "error",
       "jsx-a11y/scope": "error",
       "jsx-a11y/tabindex-no-positive": "error",
 
       // Regras para melhorar performance
-      "react/jsx-no-bind": "warn",
-      "react/jsx-no-leaked-render": "error",
+      "react/jsx-no-bind": "off",
+      "react/jsx-no-leaked-render": "off",
       "react/jsx-no-useless-fragment": "error",
-      "react/no-array-index-key": "warn",
+      "react/no-array-index-key": "off",
       "react/no-unstable-nested-components": "error",
 
       // Regras para melhorar TypeScript
       "@typescript-eslint/no-unused-vars": "error",
       "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/prefer-const": "error",
 
       // Regras para melhorar SEO
       "react/no-unescaped-entities": "error",

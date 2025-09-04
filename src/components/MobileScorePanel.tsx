@@ -82,16 +82,16 @@ export function MobileScorePanel({
                 <div className="flex justify-center">
                   <svg width="60" height="60" viewBox="0 0 60 60">
                     {nextPiece.shape.map(([dx, dy], index) => {
-                      const minX = Math.min(...nextPiece.shape.map(([x]) => x));
-                      const maxX = Math.max(...nextPiece.shape.map(([x]) => x));
-                      const minY = Math.min(...nextPiece.shape.map(([, y]) => y));
-                      const maxY = Math.max(...nextPiece.shape.map(([, y]) => y));
+                      const minX = Math.min(...nextPiece.shape.map(([x]) => x || 0));
+                      const maxX = Math.max(...nextPiece.shape.map(([x]) => x || 0));
+                      const minY = Math.min(...nextPiece.shape.map(([, y]) => y || 0));
+                      const maxY = Math.max(...nextPiece.shape.map(([, y]) => y || 0));
 
                       const centerX = (4 - (maxX - minX + 1)) / 2 - minX;
                       const centerY = (4 - (maxY - minY + 1)) / 2 - minY;
 
-                      const x = (centerX + dx) * 15;
-                      const y = (centerY + dy) * 15;
+                      const x = (centerX + (dx || 0)) * 15;
+                      const y = (centerY + (dy || 0)) * 15;
                       return (
                         <rect
                           key={index}
@@ -99,7 +99,7 @@ export function MobileScorePanel({
                           y={y}
                           width="15"
                           height="15"
-                          fill={COLORS[nextPiece.color - 1]}
+                          fill={COLORS[nextPiece.color - 1] || "#ffffff"}
                           stroke="#374151"
                           strokeWidth="1"
                           rx="2"

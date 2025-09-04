@@ -44,10 +44,11 @@ export function GameCanvas({ gameState }: GameCanvasProps) {
     // Render sand - otimizado com partículas redondas
     for (let fy = 0; fy < F_H; fy++) {
       const row = gameState.sand[fy];
+      if (!row) continue;
       for (let fx = 0; fx < F_W; fx++) {
         const v = row[fx];
         if (!v) continue;
-        ctx.fillStyle = COLORS[v - 1];
+        ctx.fillStyle = COLORS[v - 1] || "#ffffff";
         const cx = Math.floor(fx / SUB) * CELL + (fx % SUB) * px;
         const cy = Math.floor(fy / SUB) * CELL + (fy % SUB) * px;
 
@@ -61,10 +62,10 @@ export function GameCanvas({ gameState }: GameCanvasProps) {
     // Render ghost piece (sombra) - otimizado
     if (gameState.ghost) {
       ctx.globalAlpha = 0.3;
-      ctx.fillStyle = COLORS[gameState.ghost.color - 1];
+      ctx.fillStyle = COLORS[gameState.ghost.color - 1] || "#ffffff";
       for (const [dx, dy] of gameState.ghost.shape) {
-        const x = (gameState.ghost.x + dx) * CELL;
-        const y = (gameState.ghost.y + dy) * CELL;
+        const x = (gameState.ghost.x + (dx || 0)) * CELL;
+        const y = (gameState.ghost.y + (dy || 0)) * CELL;
         ctx.fillRect(x, y, CELL, CELL);
       }
       ctx.globalAlpha = 1;
@@ -72,10 +73,10 @@ export function GameCanvas({ gameState }: GameCanvasProps) {
 
     // Render active piece - otimizado
     if (gameState.active) {
-      ctx.fillStyle = COLORS[gameState.active.color - 1];
+      ctx.fillStyle = COLORS[gameState.active.color - 1] || "#ffffff";
       for (const [dx, dy] of gameState.active.shape) {
-        const x = (gameState.active.x + dx) * CELL;
-        const y = (gameState.active.y + dy) * CELL;
+        const x = (gameState.active.x + (dx || 0)) * CELL;
+        const y = (gameState.active.y + (dy || 0)) * CELL;
         ctx.fillRect(x, y, CELL, CELL);
 
         // Fast drop effect - otimizado

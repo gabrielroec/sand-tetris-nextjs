@@ -11,10 +11,10 @@ export function NextPieceDisplay({ nextPiece }: NextPieceDisplayProps) {
   if (!nextPiece) return null;
 
   // Calcula o centro da peça para centralizar
-  const minX = Math.min(...nextPiece.shape.map(([x]) => x));
-  const maxX = Math.max(...nextPiece.shape.map(([x]) => x));
-  const minY = Math.min(...nextPiece.shape.map(([, y]) => y));
-  const maxY = Math.max(...nextPiece.shape.map(([, y]) => y));
+  const minX = Math.min(...nextPiece.shape.map(([x]) => x || 0));
+  const maxX = Math.max(...nextPiece.shape.map(([x]) => x || 0));
+  const minY = Math.min(...nextPiece.shape.map(([, y]) => y || 0));
+  const maxY = Math.max(...nextPiece.shape.map(([, y]) => y || 0));
 
   const centerX = (4 - (maxX - minX + 1)) / 2 - minX;
   const centerY = (4 - (maxY - minY + 1)) / 2 - minY;
@@ -25,8 +25,8 @@ export function NextPieceDisplay({ nextPiece }: NextPieceDisplayProps) {
       <div className="relative w-20 h-20 mx-auto">
         <svg width="80" height="80" viewBox="0 0 80 80" className="absolute inset-0">
           {nextPiece.shape.map(([dx, dy], index) => {
-            const x = (centerX + dx) * CELL;
-            const y = (centerY + dy) * CELL;
+            const x = (centerX + (dx || 0)) * CELL;
+            const y = (centerY + (dy || 0)) * CELL;
             return (
               <rect
                 key={index}
@@ -34,7 +34,7 @@ export function NextPieceDisplay({ nextPiece }: NextPieceDisplayProps) {
                 y={y}
                 width={CELL}
                 height={CELL}
-                fill={COLORS[nextPiece.color - 1]}
+                fill={COLORS[nextPiece.color - 1] || "#ffffff"}
                 stroke="#374151"
                 strokeWidth="1"
                 rx="2"

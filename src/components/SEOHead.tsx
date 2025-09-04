@@ -1,6 +1,4 @@
-"use client";
-
-import Head from "next/head";
+import { useEffect } from "react";
 
 interface SEOHeadProps {
   title?: string;
@@ -48,116 +46,129 @@ export default function SEOHead({
       }.`
     : description;
 
-  return (
-    <Head>
-      {/* Meta tags básicas */}
-      <title>{dynamicTitle}</title>
-      <meta name="description" content={dynamicDescription} />
-      <meta name="keywords" content={keywords.join(", ")} />
-      <meta name="author" content="Gabriel Roec" />
-      <meta name="robots" content="index, follow" />
-      <meta name="language" content="pt-BR" />
-      <meta name="revisit-after" content="7 days" />
-      <meta name="distribution" content="global" />
-      <meta name="rating" content="general" />
+  useEffect(() => {
+    // Atualiza o título dinamicamente
+    document.title = dynamicTitle;
 
-      {/* Canonical URL */}
-      <link rel="canonical" href={url} />
+    // Atualiza meta tags dinamicamente
+    const updateMetaTag = (name: string, content: string) => {
+      let meta = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement;
+      if (!meta) {
+        meta = document.createElement("meta");
+        meta.name = name;
+        document.head.appendChild(meta);
+      }
+      meta.content = content;
+    };
 
-      {/* Open Graph */}
-      <meta property="og:title" content={dynamicTitle} />
-      <meta property="og:description" content={dynamicDescription} />
-      <meta property="og:image" content={image} />
-      <meta property="og:url" content={url} />
-      <meta property="og:type" content={type} />
-      <meta property="og:site_name" content="Sand Tetris" />
-      <meta property="og:locale" content="pt_BR" />
+    const updatePropertyMetaTag = (property: string, content: string) => {
+      let meta = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement;
+      if (!meta) {
+        meta = document.createElement("meta");
+        meta.setAttribute("property", property);
+        document.head.appendChild(meta);
+      }
+      meta.content = content;
+    };
 
-      {/* Twitter Card */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={dynamicTitle} />
-      <meta name="twitter:description" content={dynamicDescription} />
-      <meta name="twitter:image" content={image} />
-      <meta name="twitter:creator" content="@gabrielroec1" />
-      <meta name="twitter:site" content="@gabrielroec1" />
+    // Atualiza meta tags básicas
+    updateMetaTag("description", dynamicDescription);
+    updateMetaTag("keywords", keywords.join(", "));
+    updateMetaTag("author", "Gabriel Roec");
+    updateMetaTag("robots", "index, follow");
+    updateMetaTag("language", "pt-BR");
+    updateMetaTag("revisit-after", "7 days");
+    updateMetaTag("distribution", "global");
+    updateMetaTag("rating", "general");
 
-      {/* PWA Meta Tags */}
-      <meta name="theme-color" content="#a78bfa" />
-      <meta name="color-scheme" content="dark" />
-      <meta name="apple-mobile-web-app-capable" content="yes" />
-      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-      <meta name="apple-mobile-web-app-title" content="Sand Tetris" />
-      <meta name="application-name" content="Sand Tetris" />
-      <meta name="msapplication-TileColor" content="#a78bfa" />
-      <meta name="msapplication-config" content="/browserconfig.xml" />
+    // Atualiza Open Graph
+    updatePropertyMetaTag("og:title", dynamicTitle);
+    updatePropertyMetaTag("og:description", dynamicDescription);
+    updatePropertyMetaTag("og:image", image);
+    updatePropertyMetaTag("og:url", url);
+    updatePropertyMetaTag("og:type", type);
+    updatePropertyMetaTag("og:site_name", "Sand Tetris");
+    updatePropertyMetaTag("og:locale", "pt_BR");
 
-      {/* Performance Meta Tags */}
-      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-      <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    // Atualiza Twitter Card
+    updatePropertyMetaTag("twitter:card", "summary_large_image");
+    updatePropertyMetaTag("twitter:title", dynamicTitle);
+    updatePropertyMetaTag("twitter:description", dynamicDescription);
+    updatePropertyMetaTag("twitter:image", image);
+    updatePropertyMetaTag("twitter:creator", "@gabrielroec1");
+    updatePropertyMetaTag("twitter:site", "@gabrielroec1");
 
-      {/* Preconnect para performance */}
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link rel="preconnect" href="https://www.google-analytics.com" />
-      <link rel="preconnect" href="https://www.googletagmanager.com" />
+    // Atualiza canonical URL
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.href = url;
 
-      {/* DNS Prefetch */}
-      <link rel="dns-prefetch" href="//www.google-analytics.com" />
-      <link rel="dns-prefetch" href="//www.googletagmanager.com" />
+    // Atualiza structured data
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      name: "Sand Tetris",
+      description: dynamicDescription,
+      url: url,
+      image: image,
+      genre: ["Puzzle", "Arcade", "Strategy"],
+      gamePlatform: ["Web Browser", "Mobile", "Desktop"],
+      applicationCategory: "Game",
+      operatingSystem: "Web Browser",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "BRL",
+        availability: "https://schema.org/InStock",
+      },
+      author: {
+        "@type": "Person",
+        name: "Gabriel Roec",
+        url: "https://github.com/gabrielroec1",
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "Sand Tetris",
+        url: "https://sandtetris.io",
+      },
+      ...(gameState && {
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: "4.8",
+          ratingCount: "150",
+          bestRating: "5",
+          worstRating: "1",
+        },
+        gameItem: {
+          "@type": "Game",
+          name: "Sand Tetris",
+          description: `Tetris com física de areia realista - Score atual: ${gameState.score}`,
+          gameServer: {
+            "@type": "GameServer",
+            serverStatus: "Online",
+            playersOnline: "100+",
+          },
+        },
+      }),
+    };
 
-      {/* Structured Data para Game */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "VideoGame",
-            name: "Sand Tetris",
-            description: dynamicDescription,
-            url: url,
-            image: image,
-            genre: ["Puzzle", "Arcade", "Strategy"],
-            gamePlatform: ["Web Browser", "Mobile", "Desktop"],
-            applicationCategory: "Game",
-            operatingSystem: "Web Browser",
-            offers: {
-              "@type": "Offer",
-              price: "0",
-              priceCurrency: "BRL",
-              availability: "https://schema.org/InStock",
-            },
-            author: {
-              "@type": "Person",
-              name: "Gabriel Roec",
-              url: "https://github.com/gabrielroec1",
-            },
-            publisher: {
-              "@type": "Organization",
-              name: "Sand Tetris",
-              url: "https://sandtetris.io",
-            },
-            ...(gameState && {
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.8",
-                ratingCount: "150",
-                bestRating: "5",
-                worstRating: "1",
-              },
-              gameItem: {
-                "@type": "Game",
-                name: "Sand Tetris",
-                description: `Tetris com física de areia realista - Score atual: ${gameState.score}`,
-                gameServer: {
-                  "@type": "GameServer",
-                  serverStatus: "Online",
-                  playersOnline: "100+",
-                },
-              },
-            }),
-          }),
-        }}
-      />
-    </Head>
-  );
+    // Remove structured data anterior se existir
+    const existingScript = document.querySelector("script[data-seo-structured]");
+    if (existingScript) {
+      existingScript.remove();
+    }
+
+    // Adiciona novo structured data
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.setAttribute("data-seo-structured", "true");
+    script.textContent = JSON.stringify(structuredData);
+    document.head.appendChild(script);
+  }, [dynamicTitle, dynamicDescription, keywords, image, url, type, gameState]);
+
+  return null;
 }

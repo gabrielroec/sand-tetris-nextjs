@@ -178,10 +178,20 @@ npm run lint
 ### 🌍 Variáveis de Ambiente
 
 ```env
+# Ambiente
 NODE_ENV=development
-NEXT_PUBLIC_GAME_VERSION=1.0.0
+
+# URL do site
 NEXT_PUBLIC_SITE_URL=https://sandtetris.io
+
+# Versão do jogo
+NEXT_PUBLIC_GAME_VERSION=1.0.0
+
+# Google Analytics (opcional)
+NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 ```
+
+**Nota:** Para usar Google Analytics, crie um arquivo `.env.local` com seu ID do GA.
 
 ### ⚙️ Configurações do Next.js
 

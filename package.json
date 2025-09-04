@@ -29,8 +29,8 @@
     "url": "https://github.com/gabrielroec1/sand-tetris-nextjs/issues"
   },
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },

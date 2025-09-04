@@ -133,10 +133,14 @@ export function useGameLogic() {
 
   const spawnPiece = useCallback(() => {
     if (!isMounted) return null;
-    const shape = TETROS[Math.floor(rng() * TETROS.length)].map((c) => [...c]);
+    const tetroIndex = Math.floor(rng() * TETROS.length);
+    const tetro = TETROS[tetroIndex];
+    if (!tetro) return null;
+
+    const shape = tetro.map((c) => [...c]);
     const color = Math.floor(rng() * COLORS.length) + 1;
-    const minX = Math.min(...shape.map(([x]) => x));
-    const maxX = Math.max(...shape.map(([x]) => x));
+    const minX = Math.min(...shape.map(([x]) => x || 0));
+    const maxX = Math.max(...shape.map(([x]) => x || 0));
     const startX = Math.floor((C_W - (maxX - minX + 1)) / 2) - minX;
     const piece = { shape, x: Math.max(0, startX), y: -2, color };
 
@@ -149,12 +153,12 @@ export function useGameLogic() {
 
   // Função para rotacionar peça (90°)
   const rotatePiece = useCallback((shape: number[][]) => {
-    return shape.map(([x, y]) => [-y, x]);
+    return shape.map(([x, y]) => [-(y || 0), x || 0]);
   }, []);
 
   // Função para rotacionar peça 180°
   const rotatePiece180 = useCallback((shape: number[][]) => {
-    return shape.map(([x, y]) => [-x, -y]);
+    return shape.map(([x, y]) => [-(x || 0), -(y || 0)]);
   }, []);
 
   const collidesCoarseWithSand = useCallback(
@@ -164,8 +168,8 @@ export function useGameLogic() {
 
       return p.shape.some((coord: number[]) => {
         const [dx, dy] = coord;
-        const cx = nx + dx,
-          cy = ny + dy;
+        const cx = nx + (dx || 0),
+          cy = ny + (dy || 0);
         if (cx < 0 || cx >= C_W || cy < 0 || cy >= C_H) return true;
 
         const fx0 = cx * SUB,
