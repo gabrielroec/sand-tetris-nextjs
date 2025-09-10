@@ -8,13 +8,11 @@ import { canPlace, placeToSand } from "./piece.js";
 import { simulateSand } from "./sand.js";
 import { clearColorLines } from "./lineClear.js";
 import { audioManager } from "./AudioManager.js";
-import { AirplaneMode } from "./AirplaneMode.js";
 import { GRID_W, BASE_FALL_MS, SAND_BUDGET, REST_K } from "./constants.js";
 import { track } from "@vercel/analytics";
 
 export class GameEngine {
   constructor() {
-    this.airplaneMode = new AirplaneMode();
     this.reset();
   }
 
@@ -91,46 +89,6 @@ export class GameEngine {
 
   update(stepMs, keys) {
     if (!this.state.running || this.state.gameOver) return;
-
-    // Sistema progressivo de modo avião: 1000, 2000, 3000, 4000...
-    const airplaneThreshold = Math.floor(this.state.score / 1000) * 1000 + 1000;
-    const nextThreshold = airplaneThreshold + 1000;
-
-    if (this.state.score >= airplaneThreshold && this.state.score < nextThreshold && !this.airplaneMode.isActive()) {
-      this.airplaneMode.start();
-      this.state.score += 100; // Adiciona 100 pontos ao entrar no modo avião
-
-      // Track airplane mode activation
-      track("airplane_mode_start", {
-        game: "sand-tetris",
-        score: this.state.score,
-        level: this.state.level,
-        threshold: airplaneThreshold,
-        timestamp: new Date().toISOString(),
-      });
-    }
-
-    // Se o modo avião está ativo, atualiza ele
-    if (this.airplaneMode.isActive()) {
-      const shouldReturnToTetris = this.airplaneMode.update(stepMs, keys, this.grids.read);
-      if (shouldReturnToTetris) {
-        // Adiciona pontos do modo avião ao score total
-        this.state.score += this.airplaneMode.getScore();
-
-        // Track airplane mode end
-        track("airplane_mode_end", {
-          game: "sand-tetris",
-          airplaneScore: this.airplaneMode.getScore(),
-          airplaneHits: this.airplaneMode.getHits(),
-          totalScore: this.state.score,
-          timestamp: new Date().toISOString(),
-        });
-
-        // Continua o jogo normal do Tetris
-      } else {
-        return; // Não atualiza o Tetris enquanto o avião está ativo
-      }
-    }
 
     this.state.tick++;
     this.state.biasToggle = !this.state.biasToggle;
@@ -369,14 +327,5 @@ export class GameEngine {
 
   isRunning() {
     return this.state.running;
-  }
-
-  // Métodos para o modo avião
-  isAirplaneModeActive() {
-    return this.airplaneMode.isActive();
-  }
-
-  getAirplaneMode() {
-    return this.airplaneMode;
   }
 }

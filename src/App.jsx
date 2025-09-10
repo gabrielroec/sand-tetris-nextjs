@@ -26,11 +26,6 @@ export default function App() {
     score: 0,
     combo: 0,
     gameOver: false,
-    airplaneMode: false,
-    airplaneScore: 0,
-    airplaneHits: 0,
-    airplaneTimeRemaining: 0,
-    nextAirplaneThreshold: 1000,
   });
 
   // Estado do áudio
@@ -122,34 +117,19 @@ export default function App() {
         // HUD leve
         if ((gameEngine.getState().tick & 3) === 0) {
           const state = gameEngine.getState();
-          const airplaneMode = gameEngine.getAirplaneMode();
-
-          // Calcula próximo threshold do modo avião
-          const nextAirplaneThreshold = Math.floor(state.score / 1000) * 1000 + 1000;
-
           setHud({
             level: state.level,
             lines: state.lines,
             score: state.score,
             combo: state.combo,
             gameOver: state.gameOver,
-            airplaneMode: airplaneMode.isActive(),
-            airplaneScore: airplaneMode.getScore(),
-            airplaneHits: airplaneMode.getHits(),
-            airplaneTimeRemaining: airplaneMode.getTimeRemaining(),
-            nextAirplaneThreshold: nextAirplaneThreshold,
           });
         }
       }
 
       // Renderização
-      const airplaneMode = gameEngine.getAirplaneMode();
-      renderer.render({ grid: gameEngine.getGrid() }, gameEngine.getCurrentPiece(), airplaneMode);
-
-      // Só renderiza a próxima peça se não estiver no modo avião
-      if (!gameEngine.isAirplaneModeActive()) {
-        renderer.renderNext(gameEngine.getNextPiece());
-      }
+      renderer.render({ grid: gameEngine.getGrid() }, gameEngine.getCurrentPiece());
+      renderer.renderNext(gameEngine.getNextPiece());
     };
 
     raf = requestAnimationFrame(frame);
@@ -249,43 +229,6 @@ export default function App() {
               <div className="score-value">{hud.combo}</div>
             </div>
           </div>
-
-          {/* Modo Avião - só aparece quando ativo */}
-          {hud.airplaneMode && (
-            <div className="airplane-section">
-              <div className="airplane-title">✈️ MODO AVIÃO</div>
-              <div className="airplane-stats">
-                <div className="airplane-item">
-                  <div className="airplane-label">Tempo</div>
-                  <div className="airplane-value">{Math.ceil(hud.airplaneTimeRemaining / 1000)}s</div>
-                </div>
-                <div className="airplane-item">
-                  <div className="airplane-label">Pontos</div>
-                  <div className="airplane-value">{hud.airplaneScore}</div>
-                </div>
-                <div className="airplane-item">
-                  <div className="airplane-label">Acertos</div>
-                  <div className="airplane-value">{hud.airplaneHits}</div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Progresso para próximo modo avião */}
-          {!hud.airplaneMode && (
-            <div className="airplane-progress">
-              <div className="airplane-progress-title">✈️ PRÓXIMO AVIÃO</div>
-              <div className="airplane-progress-bar">
-                <div
-                  className="airplane-progress-fill"
-                  style={{
-                    width: `${Math.min(100, (hud.score % 1000) / 10)}%`,
-                  }}
-                ></div>
-              </div>
-              <div className="airplane-progress-text">{hud.nextAirplaneThreshold - hud.score} pontos restantes</div>
-            </div>
-          )}
 
           {/* Próxima peça */}
           <div className="next-section">

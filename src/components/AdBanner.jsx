@@ -30,12 +30,9 @@ const AdBanner = ({ adSlot, adFormat = "auto", adStyle = { display: "block" }, c
     // TEMPORARIAMENTE DESABILITADO - Aguardando aprovação do Google AdSense
     // O AdSense está em processo de verificação (2-4 semanas)
     // Durante esse período, exibimos placeholders bonitos
-
-    console.log("AdSense em verificação - Exibindo placeholder");
-
+    // console.log("AdSense em verificação - Exibindo placeholder");
     // TODO: Reativar quando o Google aprovar o site
     // if (!isVisible || hasLoaded.current || !window.adsbygoogle) return;
-
     // const checkAndLoad = () => {
     //   if (adRef.current) {
     //     const rect = adRef.current.getBoundingClientRect();
