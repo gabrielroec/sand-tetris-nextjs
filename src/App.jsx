@@ -174,11 +174,6 @@ export default function App() {
     audioManager.playButtonClick();
   };
 
-  const testAirplaneMode = () => {
-    gameEngineRef.current.getAirplaneMode().start();
-    audioManager.playButtonClick();
-  };
-
   return (
     <div className="game-container">
       {/* Header com título e configurações */}
@@ -188,14 +183,9 @@ export default function App() {
             <h1 className="game-title">SAND TETRIS</h1>
             {/* <div className="game-subtitle">Partículas em queda livre</div> */}
           </div>
-          <div className="header-buttons">
-            <button className="test-btn" onClick={testAirplaneMode}>
-              ✈️ TESTE AVIÃO
-            </button>
-            <button className="settings-btn" onClick={toggleSettings}>
-              ⚙️ CONFIG
-            </button>
-          </div>
+          <button className="settings-btn" onClick={toggleSettings}>
+            ⚙️ CONFIG
+          </button>
         </div>
       </div>
 
@@ -251,32 +241,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Controles */}
-          <div className="controls-section">
-            <div className="controls-label">CONTROLS</div>
-            <div className="controls-grid">
-              <div className="control-item">
-                <span className="control-key">← →</span>
-                <span className="control-desc">Move</span>
-              </div>
-              <div className="control-item">
-                <span className="control-key">↑</span>
-                <span className="control-desc">Rotate</span>
-              </div>
-              <div className="control-item">
-                <span className="control-key">↓</span>
-                <span className="control-desc">Soft Drop</span>
-              </div>
-              <div className="control-item">
-                <span className="control-key">AUTO</span>
-                <span className="control-desc">Tiro Automático</span>
-              </div>
-              <div className="control-item">
-                <span className="control-key">P</span>
-                <span className="control-desc">Pause</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Painel central - Jogo */}
@@ -294,29 +258,27 @@ export default function App() {
           </div>
         </div>
 
-        {/* Painel direito - Estatísticas */}
+        {/* Painel direito - Controles */}
         <div className="stats-panel">
-          <div className="stats-section">
-            <div className="stats-label">STATS</div>
-            <div className="stats-item">
-              <span className="stats-name">Time</span>
-              <span className="stats-value">--:--</span>
-            </div>
-            <div className="stats-item">
-              <span className="stats-name">Pieces</span>
-              <span className="stats-value">0</span>
-            </div>
-            <div className="stats-item">
-              <span className="stats-name">Drops</span>
-              <span className="stats-value">0</span>
-            </div>
-          </div>
-
-          {/* Objetivo do jogo */}
-          <div className="objective-section">
-            <div className="objective-label">OBJECTIVE</div>
-            <div className="objective-text">
-              Forme faixas contínuas de uma cor de uma extremidade à outra para limpar linhas e ganhar pontos!
+          <div className="controls-section">
+            <div className="controls-label">CONTROLS</div>
+            <div className="controls-grid">
+              <div className="control-item">
+                <span className="control-key">← →</span>
+                <span className="control-desc">Move</span>
+              </div>
+              <div className="control-item">
+                <span className="control-key">↑</span>
+                <span className="control-desc">Rotate</span>
+              </div>
+              <div className="control-item">
+                <span className="control-key">↓</span>
+                <span className="control-desc">Soft Drop</span>
+              </div>
+              <div className="control-item">
+                <span className="control-key">P</span>
+                <span className="control-desc">Pause</span>
+              </div>
             </div>
           </div>
         </div>

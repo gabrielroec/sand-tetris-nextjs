@@ -34,6 +34,8 @@ export class GameEngine {
       biasToggle: false,
       current: null,
       next: null,
+      gameStartTime: Date.now(),
+      lastSecondScore: 0,
     };
 
     // Grids double-buffer
@@ -73,9 +75,10 @@ export class GameEngine {
   update(stepMs, keys) {
     if (!this.state.running || this.state.gameOver) return;
 
-    // Verifica se deve ativar o modo avião
-    if (this.state.score >= 1000 && !this.airplaneMode.isActive()) {
+    // Verifica se deve ativar o modo avião (só entre 1000-1099 para evitar loop)
+    if (this.state.score >= 1000 && this.state.score < 1100 && !this.airplaneMode.isActive()) {
       this.airplaneMode.start();
+      this.state.score += 100; // Adiciona 100 pontos ao entrar no modo avião
     }
 
     // Se o modo avião está ativo, atualiza ele
@@ -92,6 +95,9 @@ export class GameEngine {
 
     this.state.tick++;
     this.state.biasToggle = !this.state.biasToggle;
+
+    // Sistema de pontos por tempo de sobrevivência (1 ponto por segundo)
+    this.updateSurvivalScore();
 
     this.handleInput(keys);
     this.updatePieceFall(stepMs);
@@ -184,7 +190,7 @@ export class GameEngine {
   }
 
   handleLineClear(cleared) {
-    const base = 200 * this.state.level; // 200 pontos por faixa
+    const base = 500 * this.state.level; // 500 pontos por faixa
     const chain = this.state.lastClearTick === this.state.tick - 1 ? this.state.combo + 1 : 1;
 
     this.state.combo = chain;
@@ -202,8 +208,10 @@ export class GameEngine {
   }
 
   updateLevel() {
-    if (this.state.lines > 0 && this.state.lines % LINES_PER_LEVEL === 0) {
-      this.state.level += 1;
+    // Sube de nível a cada 2000 pontos
+    const newLevel = Math.floor(this.state.score / 2000) + 1;
+    if (newLevel > this.state.level) {
+      this.state.level = newLevel;
       this.state.pieceFallMs = Math.max(70, Math.floor(this.state.pieceFallMs * 0.88));
       audioManager.playLevelUp();
     }
@@ -212,6 +220,17 @@ export class GameEngine {
   resetComboIfNeeded() {
     if (this.state.lastClearTick !== this.state.tick - 1) {
       this.state.combo = 0;
+    }
+  }
+
+  updateSurvivalScore() {
+    const currentTime = Date.now();
+    const secondsElapsed = Math.floor((currentTime - this.state.gameStartTime) / 1000);
+
+    // Adiciona 1 ponto por segundo de sobrevivência
+    if (secondsElapsed > this.state.lastSecondScore) {
+      this.state.score += secondsElapsed - this.state.lastSecondScore;
+      this.state.lastSecondScore = secondsElapsed;
     }
   }
 

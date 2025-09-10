@@ -59,35 +59,6 @@ body {
   font-style: italic;
 }
 
-.header-buttons {
-  display: flex;
-  gap: 15px;
-  position: absolute;
-  top: 20px;
-  right: 20px;
-}
-
-.test-btn {
-  background: linear-gradient(145deg, #ff6b6b, #ff5252);
-  border: 2px solid #ff4757;
-  border-radius: 12px;
-  padding: 12px 20px;
-  color: #ffffff;
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.test-btn:hover {
-  background: linear-gradient(145deg, #ff5252, #ff1744);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
-}
-
 .settings-btn {
   background: linear-gradient(145deg, #2b3247, #1a1a2e);
   border: 2px solid #4ecdc4;
@@ -101,6 +72,9 @@ body {
   box-shadow: 0 4px 15px rgba(78, 205, 196, 0.2);
   text-transform: uppercase;
   letter-spacing: 1px;
+  position: absolute;
+  top: 20px;
+  right: 20px;
 }
 
 .settings-btn:hover {
@@ -810,11 +784,6 @@ body {
     gap: 15px;
   }
 
-  .header-buttons {
-    gap: 10px;
-  }
-
-  .test-btn,
   .settings-btn {
     padding: 10px 16px;
     font-size: 0.9rem;
