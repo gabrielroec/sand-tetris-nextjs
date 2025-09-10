@@ -3,6 +3,7 @@ import { UPS } from "./game/constants.js";
 import { GameEngine } from "./game/GameEngine.js";
 import { Renderer } from "./game/Renderer.js";
 import { useKeyboard } from "./game/InputManager.js";
+import { audioManager } from "./game/AudioManager.js";
 import "./App.css";
 
 export default function App() {
@@ -17,6 +18,13 @@ export default function App() {
 
   // HUD: exibe números sem re-renderar tudo
   const [hud, setHud] = useState({ level: 1, lines: 0, score: 0, combo: 0, gameOver: false });
+
+  // Estado do áudio
+  const [audioState, setAudioState] = useState({
+    muted: audioManager.isMuted(),
+    masterVolume: 0.3,
+    sfxVolume: 0.5,
+  });
 
   // Input
   const getKeys = useKeyboard({
@@ -38,6 +46,23 @@ export default function App() {
         h: canvasRef.current.height,
       });
     }
+  }, []);
+
+  // Inicializa o áudio no primeiro clique
+  useEffect(() => {
+    const initAudio = () => {
+      audioManager.resumeAudioContext();
+      document.removeEventListener("click", initAudio);
+      document.removeEventListener("keydown", initAudio);
+    };
+
+    document.addEventListener("click", initAudio);
+    document.addEventListener("keydown", initAudio);
+
+    return () => {
+      document.removeEventListener("click", initAudio);
+      document.removeEventListener("keydown", initAudio);
+    };
   }, []);
 
   // Resize + escala
@@ -102,6 +127,24 @@ export default function App() {
 
   const onRestart = () => {
     gameEngineRef.current.reset();
+    audioManager.playButtonClick();
+  };
+
+  // Funções de controle de áudio
+  const toggleMute = () => {
+    const muted = audioManager.toggleMute();
+    setAudioState((prev) => ({ ...prev, muted }));
+    audioManager.playButtonClick();
+  };
+
+  const setMasterVolume = (volume) => {
+    audioManager.setMasterVolume(volume);
+    setAudioState((prev) => ({ ...prev, masterVolume: volume }));
+  };
+
+  const setSfxVolume = (volume) => {
+    audioManager.setSfxVolume(volume);
+    setAudioState((prev) => ({ ...prev, sfxVolume: volume }));
   };
 
   return (
@@ -162,6 +205,40 @@ export default function App() {
               <div className="control-item">
                 <span className="control-key">P</span>
                 <span className="control-desc">Pause</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Controles de Áudio */}
+          <div className="audio-section">
+            <div className="audio-label">AUDIO</div>
+            <div className="audio-controls">
+              <button className="audio-btn" onClick={toggleMute}>
+                {audioState.muted ? "🔇 MUTE" : "🔊 UNMUTE"}
+              </button>
+              <div className="volume-control">
+                <label>Master</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={audioState.masterVolume}
+                  onChange={(e) => setMasterVolume(parseFloat(e.target.value))}
+                  className="volume-slider"
+                />
+              </div>
+              <div className="volume-control">
+                <label>SFX</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={audioState.sfxVolume}
+                  onChange={(e) => setSfxVolume(parseFloat(e.target.value))}
+                  className="volume-slider"
+                />
               </div>
             </div>
           </div>

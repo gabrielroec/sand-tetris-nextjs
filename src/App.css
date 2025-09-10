@@ -50,11 +50,12 @@ body {
 /* Layout Principal */
 .game-layout {
   display: grid;
-  grid-template-columns: 250px 1fr 250px;
+  grid-template-columns: 250px 250px 250px;
   gap: 30px;
   max-width: 1200px;
   width: 100%;
   align-items: start;
+  justify-content: center;
 }
 
 /* Painel Esquerdo - Informações */
@@ -168,6 +169,101 @@ body {
 .control-desc {
   font-size: 0.8rem;
   color: #e0e0e0;
+}
+
+/* Controles de Áudio */
+.audio-section {
+  margin-bottom: 20px;
+}
+
+.audio-label {
+  font-size: 0.9rem;
+  color: #a0a0a0;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 15px;
+}
+
+.audio-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.audio-btn {
+  background: linear-gradient(145deg, #4ecdc4, #44a08d);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: white;
+  font-weight: bold;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.audio-btn:hover {
+  background: linear-gradient(145deg, #44a08d, #3d8b7d);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+}
+
+.volume-control {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.volume-control label {
+  font-size: 0.8rem;
+  color: #a0a0a0;
+  font-weight: 600;
+}
+
+.volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: rgba(43, 50, 71, 0.3);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(145deg, #4ecdc4, #44a08d);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(78, 205, 196, 0.3);
+  transition: all 0.2s ease;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(78, 205, 196, 0.4);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(145deg, #4ecdc4, #44a08d);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(78, 205, 196, 0.3);
+  transition: all 0.2s ease;
+}
+
+.volume-slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(78, 205, 196, 0.4);
 }
 
 /* Painel Central - Jogo */

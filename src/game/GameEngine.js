@@ -7,6 +7,7 @@ import { newRandomPiece } from "./tetrominoes.js";
 import { canPlace, placeToSand } from "./piece.js";
 import { simulateSand } from "./sand.js";
 import { clearColorLines } from "./lineClear.js";
+import { audioManager } from "./AudioManager.js";
 import { GRID_W, GRID_H, BASE_FALL_MS, SAND_BUDGET, REST_K, LINES_PER_LEVEL, SCORE_PER_LINE } from "./constants.js";
 
 export class GameEngine {
@@ -59,6 +60,7 @@ export class GameEngine {
 
     if (!canPlace(this.grids.read, p)) {
       this.state.gameOver = true;
+      audioManager.playGameOver();
       return null;
     }
 
@@ -83,17 +85,32 @@ export class GameEngine {
 
     // Processa movimento lateral
     if (keys.left) {
-      this.state.current = this.tryMovePiece(-1, 0);
+      const newPiece = this.tryMovePiece(-1, 0);
+      if (newPiece !== this.state.current) {
+        this.state.current = newPiece;
+        audioManager.playMove();
+      }
     }
     if (keys.right) {
-      this.state.current = this.tryMovePiece(1, 0);
+      const newPiece = this.tryMovePiece(1, 0);
+      if (newPiece !== this.state.current) {
+        this.state.current = newPiece;
+        audioManager.playMove();
+      }
     }
     if (keys.rotate) {
-      this.state.current = this.tryRotatePiece();
+      const newPiece = this.tryRotatePiece();
+      if (newPiece !== this.state.current) {
+        this.state.current = newPiece;
+        audioManager.playRotate();
+      }
     }
 
     // Soft drop
     this.state.softDrop = keys.softDrop || false;
+    if (keys.softDrop) {
+      audioManager.playSoftDrop();
+    }
   }
 
   updatePieceFall(stepMs) {
@@ -114,6 +131,7 @@ export class GameEngine {
     if (moved === this.state.current) {
       // Colidiu - congelar em areia
       placeToSand(this.grids.read, this.grids.restRead, this.state.current);
+      audioManager.playLand();
       this.state.current = this.spawnPieceOrGameOver();
     } else {
       this.state.current = moved;
@@ -155,6 +173,12 @@ export class GameEngine {
     this.state.lines += cleared;
     this.state.lastClearTick = this.state.tick;
 
+    // Efeitos sonoros
+    audioManager.playLineClear(cleared);
+    if (chain > 1) {
+      audioManager.playCombo(chain);
+    }
+
     this.updateLevel();
   }
 
@@ -162,6 +186,7 @@ export class GameEngine {
     if (this.state.lines > 0 && this.state.lines % LINES_PER_LEVEL === 0) {
       this.state.level += 1;
       this.state.pieceFallMs = Math.max(70, Math.floor(this.state.pieceFallMs * 0.88));
+      audioManager.playLevelUp();
     }
   }
 
@@ -202,6 +227,7 @@ export class GameEngine {
 
   togglePause() {
     this.state.running = !this.state.running;
+    audioManager.playPause();
   }
 
   setSoftDrop(enabled) {
