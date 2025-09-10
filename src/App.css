@@ -72,6 +72,9 @@ body {
   box-shadow: 0 4px 15px rgba(78, 205, 196, 0.2);
   text-transform: uppercase;
   letter-spacing: 1px;
+  position: absolute;
+  top: 20px;
+  right: 200px;
 }
 
 .settings-btn:hover {
@@ -564,50 +567,6 @@ body {
   box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
 }
 
-.controls-info {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.control-info-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  background: rgba(43, 50, 71, 0.3);
-  border-radius: 6px;
-  border: 1px solid rgba(43, 50, 71, 0.5);
-}
-
-.control-info-item .control-key {
-  background: #2b3247;
-  color: #ffffff;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  min-width: 30px;
-  text-align: center;
-}
-
-.info-item {
-  font-size: 0.9rem;
-  color: #a0a0a0;
-  line-height: 1.4;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(43, 50, 71, 0.2);
-}
-
-.info-item:last-child {
-  border-bottom: none;
-}
-
-.info-item strong {
-  color: #4ecdc4;
-}
-
 /* Game Over */
 .game-over-overlay {
   position: fixed;
@@ -785,10 +744,6 @@ body {
 
   .settings-content {
     padding: 20px;
-  }
-
-  .controls-info {
-    grid-template-columns: 1fr;
   }
 
   .game-over-modal {

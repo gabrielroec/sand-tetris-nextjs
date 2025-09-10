@@ -162,7 +162,7 @@ export default function App() {
         <div className="header-content">
           <div className="title-section">
             <h1 className="game-title">SAND TETRIS</h1>
-            <div className="game-subtitle">Partículas em queda livre</div>
+            {/* <div className="game-subtitle">Partículas em queda livre</div> */}
           </div>
           <button className="settings-btn" onClick={toggleSettings}>
             ⚙️ CONFIG
@@ -223,7 +223,6 @@ export default function App() {
               </div>
             </div>
           </div>
-
         </div>
 
         {/* Painel central - Jogo */}
@@ -279,7 +278,7 @@ export default function App() {
                 ✕
               </button>
             </div>
-            
+
             <div className="settings-content">
               {/* Seção de Áudio */}
               <div className="settings-section">
@@ -300,7 +299,7 @@ export default function App() {
                       <span className="volume-value">{Math.round(audioState.masterVolume * 100)}%</span>
                     </div>
                   </div>
-                  
+
                   <div className="setting-item">
                     <label className="setting-label">SFX Volume</label>
                     <div className="volume-control">
@@ -316,55 +315,11 @@ export default function App() {
                       <span className="volume-value">{Math.round(audioState.sfxVolume * 100)}%</span>
                     </div>
                   </div>
-                  
+
                   <div className="setting-item">
                     <button className="audio-toggle-btn" onClick={toggleMute}>
                       {audioState.muted ? "🔇 SOM DESLIGADO" : "🔊 SOM LIGADO"}
                     </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Seção de Jogo */}
-              <div className="settings-section">
-                <h3 className="section-title">🎮 JOGO</h3>
-                <div className="settings-group">
-                  <div className="setting-item">
-                    <label className="setting-label">Controles</label>
-                    <div className="controls-info">
-                      <div className="control-info-item">
-                        <span className="control-key">← →</span>
-                        <span>Mover peça</span>
-                      </div>
-                      <div className="control-info-item">
-                        <span className="control-key">↑</span>
-                        <span>Rotacionar</span>
-                      </div>
-                      <div className="control-info-item">
-                        <span className="control-key">↓</span>
-                        <span>Soft Drop</span>
-                      </div>
-                      <div className="control-info-item">
-                        <span className="control-key">P</span>
-                        <span>Pausar</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Seção de Informações */}
-              <div className="settings-section">
-                <h3 className="section-title">ℹ️ INFORMAÇÕES</h3>
-                <div className="settings-group">
-                  <div className="info-item">
-                    <strong>Objetivo:</strong> Forme faixas contínuas de uma cor de uma extremidade à outra para limpar linhas!
-                  </div>
-                  <div className="info-item">
-                    <strong>Versão:</strong> 1.0.0
-                  </div>
-                  <div className="info-item">
-                    <strong>Desenvolvido com:</strong> React + Web Audio API
                   </div>
                 </div>
               </div>
