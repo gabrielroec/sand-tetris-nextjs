@@ -26,6 +26,9 @@ export default function App() {
     sfxVolume: 0.5,
   });
 
+  // Estado do painel de configurações
+  const [showSettings, setShowSettings] = useState(false);
+
   // Input
   const getKeys = useKeyboard({
     onTogglePause: () => {
@@ -147,12 +150,24 @@ export default function App() {
     setAudioState((prev) => ({ ...prev, sfxVolume: volume }));
   };
 
+  const toggleSettings = () => {
+    setShowSettings(!showSettings);
+    audioManager.playButtonClick();
+  };
+
   return (
     <div className="game-container">
-      {/* Header com título */}
+      {/* Header com título e configurações */}
       <div className="game-header">
-        <h1 className="game-title">SAND TETRIS</h1>
-        <div className="game-subtitle">Partículas em queda livre</div>
+        <div className="header-content">
+          <div className="title-section">
+            <h1 className="game-title">SAND TETRIS</h1>
+            <div className="game-subtitle">Partículas em queda livre</div>
+          </div>
+          <button className="settings-btn" onClick={toggleSettings}>
+            ⚙️ CONFIG
+          </button>
+        </div>
       </div>
 
       {/* Layout principal do jogo */}
@@ -209,39 +224,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Controles de Áudio */}
-          <div className="audio-section">
-            <div className="audio-label">AUDIO</div>
-            <div className="audio-controls">
-              <button className="audio-btn" onClick={toggleMute}>
-                {audioState.muted ? "🔇 MUTE" : "🔊 UNMUTE"}
-              </button>
-              <div className="volume-control">
-                <label>Master</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  value={audioState.masterVolume}
-                  onChange={(e) => setMasterVolume(parseFloat(e.target.value))}
-                  className="volume-slider"
-                />
-              </div>
-              <div className="volume-control">
-                <label>SFX</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  value={audioState.sfxVolume}
-                  onChange={(e) => setSfxVolume(parseFloat(e.target.value))}
-                  className="volume-slider"
-                />
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Painel central - Jogo */}
@@ -286,6 +268,110 @@ export default function App() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Configurações */}
+      {showSettings && (
+        <div className="settings-overlay">
+          <div className="settings-modal">
+            <div className="settings-header">
+              <h2 className="settings-title">⚙️ CONFIGURAÇÕES</h2>
+              <button className="close-btn" onClick={toggleSettings}>
+                ✕
+              </button>
+            </div>
+            
+            <div className="settings-content">
+              {/* Seção de Áudio */}
+              <div className="settings-section">
+                <h3 className="section-title">🔊 ÁUDIO</h3>
+                <div className="settings-group">
+                  <div className="setting-item">
+                    <label className="setting-label">Master Volume</label>
+                    <div className="volume-control">
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        value={audioState.masterVolume}
+                        onChange={(e) => setMasterVolume(parseFloat(e.target.value))}
+                        className="volume-slider"
+                      />
+                      <span className="volume-value">{Math.round(audioState.masterVolume * 100)}%</span>
+                    </div>
+                  </div>
+                  
+                  <div className="setting-item">
+                    <label className="setting-label">SFX Volume</label>
+                    <div className="volume-control">
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        value={audioState.sfxVolume}
+                        onChange={(e) => setSfxVolume(parseFloat(e.target.value))}
+                        className="volume-slider"
+                      />
+                      <span className="volume-value">{Math.round(audioState.sfxVolume * 100)}%</span>
+                    </div>
+                  </div>
+                  
+                  <div className="setting-item">
+                    <button className="audio-toggle-btn" onClick={toggleMute}>
+                      {audioState.muted ? "🔇 SOM DESLIGADO" : "🔊 SOM LIGADO"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Seção de Jogo */}
+              <div className="settings-section">
+                <h3 className="section-title">🎮 JOGO</h3>
+                <div className="settings-group">
+                  <div className="setting-item">
+                    <label className="setting-label">Controles</label>
+                    <div className="controls-info">
+                      <div className="control-info-item">
+                        <span className="control-key">← →</span>
+                        <span>Mover peça</span>
+                      </div>
+                      <div className="control-info-item">
+                        <span className="control-key">↑</span>
+                        <span>Rotacionar</span>
+                      </div>
+                      <div className="control-info-item">
+                        <span className="control-key">↓</span>
+                        <span>Soft Drop</span>
+                      </div>
+                      <div className="control-info-item">
+                        <span className="control-key">P</span>
+                        <span>Pausar</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Seção de Informações */}
+              <div className="settings-section">
+                <h3 className="section-title">ℹ️ INFORMAÇÕES</h3>
+                <div className="settings-group">
+                  <div className="info-item">
+                    <strong>Objetivo:</strong> Forme faixas contínuas de uma cor de uma extremidade à outra para limpar linhas!
+                  </div>
+                  <div className="info-item">
+                    <strong>Versão:</strong> 1.0.0
+                  </div>
+                  <div className="info-item">
+                    <strong>Desenvolvido com:</strong> React + Web Audio API
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Game Over Overlay */}
       {hud.gameOver && (
