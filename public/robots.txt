@@ -1,3 +1,24 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+# Sitemap
+Sitemap: https://www.sandtetris.io/sitemap.xml
+
+# Crawl-delay (opcional - evita sobrecarga)
+Crawl-delay: 1
+
+# Bloquear arquivos desnecessários
+Disallow: /src/
+Disallow: /node_modules/
+Disallow: /*.json$
+Disallow: /*.js$
+Disallow: /*.css$
+Disallow: /package.json
+Disallow: /package-lock.json
+
+# Permitir recursos importantes
+Allow: /static/
+Allow: /assets/
+Allow: /images/
+Allow: /favicon.ico
+Allow: /manifest.json

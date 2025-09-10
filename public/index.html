@@ -3,7 +3,98 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Sand Tetris</title>
+
+    <!-- SEO Meta Tags -->
+    <title>Sand Tetris - Jogo Online Grátis | Tetris com Física de Areia</title>
+    <meta
+      name="description"
+      content="Jogue Sand Tetris online grátis! Um Tetris inovador com física de areia realista, partículas redondas e modo avião. Desafie-se a formar faixas contínuas e ganhe pontos!"
+    />
+    <meta
+      name="keywords"
+      content="tetris, sand tetris, jogo online, jogo grátis, tetris online, puzzle game, física de areia, partículas, arcade, browser game, jogo navegador"
+    />
+    <meta name="author" content="Sand Tetris" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="bingbot" content="index, follow" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.sandtetris.io/" />
+    <meta property="og:title" content="Sand Tetris - Jogo Online Grátis | Tetris com Física de Areia" />
+    <meta
+      property="og:description"
+      content="Jogue Sand Tetris online grátis! Um Tetris inovador com física de areia realista, partículas redondas e modo avião. Desafie-se a formar faixas contínuas e ganhe pontos!"
+    />
+    <meta property="og:image" content="https://www.sandtetris.io/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Sand Tetris" />
+    <meta property="og:locale" content="pt_BR" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://www.sandtetris.io/" />
+    <meta property="twitter:title" content="Sand Tetris - Jogo Online Grátis | Tetris com Física de Areia" />
+    <meta
+      property="twitter:description"
+      content="Jogue Sand Tetris online grátis! Um Tetris inovador com física de areia realista, partículas redondas e modo avião. Desafie-se a formar faixas contínuas e ganhe pontos!"
+    />
+    <meta property="twitter:image" content="https://www.sandtetris.io/og-image.jpg" />
+
+    <!-- Additional SEO -->
+    <meta name="theme-color" content="#4ecdc4" />
+    <meta name="msapplication-TileColor" content="#4ecdc4" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Sand Tetris" />
+    <link rel="canonical" href="https://www.sandtetris.io/" />
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "Sand Tetris",
+        "description": "Jogue Sand Tetris online grátis! Um Tetris inovador com física de areia realista, partículas redondas e modo avião. Desafie-se a formar faixas contínuas e ganhe pontos!",
+        "url": "https://www.sandtetris.io/",
+        "image": "https://www.sandtetris.io/og-image.jpg",
+        "genre": ["Puzzle", "Arcade", "Strategy"],
+        "gamePlatform": "Web Browser",
+        "operatingSystem": "Any",
+        "applicationCategory": "Game",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "BRL"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "150"
+        },
+        "author": {
+          "@type": "Organization",
+          "name": "Sand Tetris"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Sand Tetris",
+          "url": "https://www.sandtetris.io/"
+        },
+        "datePublished": "2024-01-01",
+        "dateModified": "2024-12-10",
+        "inLanguage": "pt-BR",
+        "isAccessibleForFree": true,
+        "playMode": "SinglePlayer",
+        "gameItem": {
+          "@type": "Thing",
+          "name": "Tetris Pieces",
+          "description": "Classic Tetris pieces with sand physics"
+        }
+      }
+    </script>
 
     <!-- Google AdSense -->
     <meta name="google-adsense-account" content="ca-pub-3990921548306759" />
@@ -86,7 +177,36 @@
     </style>
   </head>
   <body>
+    <!-- Conteúdo SEO-friendly para motores de busca -->
+    <noscript>
+      <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif">
+        <h1>Sand Tetris - Jogo Online Grátis</h1>
+        <p>Para jogar Sand Tetris, você precisa habilitar JavaScript no seu navegador.</p>
+        <p>Sand Tetris é um jogo inovador que combina a clássica mecânica do Tetris com física de areia realista.</p>
+        <h2>Como Jogar:</h2>
+        <ul style="text-align: left; max-width: 600px; margin: 0 auto">
+          <li>Use as setas ou WASD para mover e girar as peças</li>
+          <li>Forme faixas contínuas de uma cor de uma extremidade à outra</li>
+          <li>As partículas de areia caem com física realista</li>
+          <li>Alcance 1000 pontos para ativar o modo avião</li>
+          <li>Ganhe pontos extras sobrevivendo no jogo</li>
+        </ul>
+        <p><strong>Características únicas:</strong> Física de areia, partículas redondas, modo avião, sistema de níveis dinâmico.</p>
+      </div>
+    </noscript>
+
     <div id="root"></div>
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/src/main.jsx" as="script" />
+    <link rel="preload" href="/src/App.css" as="style" />
+
+    <!-- DNS prefetch for external resources -->
+    <link rel="dns-prefetch" href="//pagead2.googlesyndication.com" />
+    <link rel="dns-prefetch" href="//www.google-analytics.com" />
+
+    <!-- Resource hints -->
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -9,7 +9,8 @@ import { simulateSand } from "./sand.js";
 import { clearColorLines } from "./lineClear.js";
 import { audioManager } from "./AudioManager.js";
 import { AirplaneMode } from "./AirplaneMode.js";
-import { GRID_W, BASE_FALL_MS, SAND_BUDGET, REST_K, LINES_PER_LEVEL } from "./constants.js";
+import { GRID_W, BASE_FALL_MS, SAND_BUDGET, REST_K } from "./constants.js";
+import { track } from "@vercel/analytics";
 
 export class GameEngine {
   constructor() {
@@ -54,6 +55,12 @@ export class GameEngine {
     // Spawn inicial
     this.state.next = newRandomPiece();
     this.state.current = this.spawnPieceOrGameOver();
+
+    // Track game start
+    track("game_start", {
+      game: "sand-tetris",
+      timestamp: new Date().toISOString(),
+    });
   }
 
   spawnPieceOrGameOver() {
@@ -65,6 +72,16 @@ export class GameEngine {
     if (!canPlace(this.grids.read, p)) {
       this.state.gameOver = true;
       audioManager.playGameOver();
+
+      // Track game over
+      track("game_over", {
+        game: "sand-tetris",
+        score: this.state.score,
+        level: this.state.level,
+        lines: this.state.lines,
+        timestamp: new Date().toISOString(),
+      });
+
       return null;
     }
 
@@ -79,6 +96,14 @@ export class GameEngine {
     if (this.state.score >= 1000 && this.state.score < 1100 && !this.airplaneMode.isActive()) {
       this.airplaneMode.start();
       this.state.score += 100; // Adiciona 100 pontos ao entrar no modo avião
+
+      // Track airplane mode activation
+      track("airplane_mode_start", {
+        game: "sand-tetris",
+        score: this.state.score,
+        level: this.state.level,
+        timestamp: new Date().toISOString(),
+      });
     }
 
     // Se o modo avião está ativo, atualiza ele
@@ -87,6 +112,16 @@ export class GameEngine {
       if (shouldReturnToTetris) {
         // Adiciona pontos do modo avião ao score total
         this.state.score += this.airplaneMode.getScore();
+
+        // Track airplane mode end
+        track("airplane_mode_end", {
+          game: "sand-tetris",
+          airplaneScore: this.airplaneMode.getScore(),
+          airplaneHits: this.airplaneMode.getHits(),
+          totalScore: this.state.score,
+          timestamp: new Date().toISOString(),
+        });
+
         // Continua o jogo normal do Tetris
       } else {
         return; // Não atualiza o Tetris enquanto o avião está ativo
@@ -204,6 +239,16 @@ export class GameEngine {
       audioManager.playCombo(chain);
     }
 
+    // Track line clear
+    track("line_clear", {
+      game: "sand-tetris",
+      linesCleared: cleared,
+      score: this.state.score,
+      level: this.state.level,
+      combo: chain,
+      timestamp: new Date().toISOString(),
+    });
+
     this.updateLevel();
   }
 
@@ -214,6 +259,14 @@ export class GameEngine {
       this.state.level = newLevel;
       this.state.pieceFallMs = Math.max(70, Math.floor(this.state.pieceFallMs * 0.88));
       audioManager.playLevelUp();
+
+      // Track level up
+      track("level_up", {
+        game: "sand-tetris",
+        level: newLevel,
+        score: this.state.score,
+        timestamp: new Date().toISOString(),
+      });
     }
   }
 
@@ -266,6 +319,23 @@ export class GameEngine {
   togglePause() {
     this.state.running = !this.state.running;
     audioManager.playPause();
+
+    // Track pause/resume
+    if (this.state.running) {
+      track("game_resume", {
+        game: "sand-tetris",
+        score: this.state.score,
+        level: this.state.level,
+        timestamp: new Date().toISOString(),
+      });
+    } else {
+      track("game_pause", {
+        game: "sand-tetris",
+        score: this.state.score,
+        level: this.state.level,
+        timestamp: new Date().toISOString(),
+      });
+    }
   }
 
   setSoftDrop(enabled) {

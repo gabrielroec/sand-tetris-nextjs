@@ -5,6 +5,8 @@ import { Renderer } from "./game/Renderer.js";
 import { useKeyboard } from "./game/InputManager.js";
 import { audioManager } from "./game/AudioManager.js";
 import AdBanner from "./components/AdBanner.jsx";
+import { Analytics } from "@vercel/analytics/react";
+import { track } from "@vercel/analytics";
 import "./App.css";
 
 export default function App() {
@@ -158,16 +160,40 @@ export default function App() {
     const muted = audioManager.toggleMute();
     setAudioState((prev) => ({ ...prev, muted }));
     audioManager.playButtonClick();
+
+    // Track settings change
+    track("settings_change", {
+      game: "sand-tetris",
+      setting: "mute",
+      value: muted,
+      timestamp: new Date().toISOString(),
+    });
   };
 
   const setMasterVolume = (volume) => {
     audioManager.setMasterVolume(volume);
     setAudioState((prev) => ({ ...prev, masterVolume: volume }));
+
+    // Track settings change
+    track("settings_change", {
+      game: "sand-tetris",
+      setting: "master_volume",
+      value: volume,
+      timestamp: new Date().toISOString(),
+    });
   };
 
   const setSfxVolume = (volume) => {
     audioManager.setSfxVolume(volume);
     setAudioState((prev) => ({ ...prev, sfxVolume: volume }));
+
+    // Track settings change
+    track("settings_change", {
+      game: "sand-tetris",
+      setting: "sfx_volume",
+      value: volume,
+      timestamp: new Date().toISOString(),
+    });
   };
 
   const toggleSettings = () => {
@@ -371,6 +397,7 @@ export default function App() {
           </div>
         </div>
       )}
+      <Analytics />
     </div>
   );
 }
