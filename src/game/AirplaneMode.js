@@ -14,7 +14,7 @@ export class AirplaneMode {
       y: 2,
       width: 3,
       height: 2,
-      speed: 0.1,
+      speed: 0.3, // Aumentado para melhor responsividade
       direction: 1, // 1 = direita, -1 = esquerda
     };
     this.bullets = [];
@@ -52,12 +52,12 @@ export class AirplaneMode {
 
     this.timeRemaining -= stepMs;
 
-    // Move o avião com as setas (controle manual)
+    // Move o avião com as setas (controle manual) - mais responsivo
     if (keys.left && this.airplane.x > 0) {
-      this.airplane.x -= this.airplane.speed * 2;
+      this.airplane.x -= this.airplane.speed * 3; // Aumentado multiplicador
     }
     if (keys.right && this.airplane.x < GRID_W - this.airplane.width) {
-      this.airplane.x += this.airplane.speed * 2;
+      this.airplane.x += this.airplane.speed * 3; // Aumentado multiplicador
     }
 
     // Sistema de tiro automático (como space shooters clássicos)
@@ -86,6 +86,8 @@ export class AirplaneMode {
       if (this.checkBulletCollision(bullet, grid)) {
         this.hits++;
         this.score += 10;
+        // Som de acerto
+        audioManager.playMove();
         return false;
       }
 
@@ -107,11 +109,21 @@ export class AirplaneMode {
 
     if (!inBounds(x, y)) return false;
 
-    const cellIndex = idx(x, y);
-    if (grid[cellIndex] !== 0) {
-      // Remove a partícula
-      grid[cellIndex] = 0;
-      return true;
+    // Verifica colisão em uma área 2x2 para melhor precisão
+    for (let dx = 0; dx < 2; dx++) {
+      for (let dy = 0; dy < 2; dy++) {
+        const checkX = x + dx;
+        const checkY = y + dy;
+        
+        if (inBounds(checkX, checkY)) {
+          const cellIndex = idx(checkX, checkY);
+          if (grid[cellIndex] !== 0) {
+            // Remove a partícula
+            grid[cellIndex] = 0;
+            return true;
+          }
+        }
+      }
     }
 
     return false;
