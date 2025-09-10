@@ -240,7 +240,6 @@ export default function App() {
               <canvas ref={nextRef} className="next-canvas" />
             </div>
           </div>
-
         </div>
 
         {/* Painel central - Jogo */}
