@@ -14,11 +14,18 @@ export class Renderer {
     this.nextCtx = nextCanvas.getContext("2d");
   }
 
-  render(gameState, currentPiece) {
+  render(gameState, currentPiece, airplaneMode = null) {
     this.clearCanvas();
     this.renderBackground();
     this.renderGrid(gameState.grid);
-    this.renderCurrentPiece(currentPiece);
+
+    // Se o modo avião está ativo, renderiza ele
+    if (airplaneMode && airplaneMode.isActive()) {
+      airplaneMode.render(this.ctx, this.canvas);
+    } else {
+      // Senão, renderiza a peça atual do Tetris
+      this.renderCurrentPiece(currentPiece);
+    }
   }
 
   renderNext(piece) {

@@ -63,7 +63,7 @@ const ROTATIONS = Object.fromEntries(KEYS.map((k) => [k, buildRotations(TETROS[k
 
 export function newRandomPiece() {
   const kind = KEYS[(Math.random() * KEYS.length) | 0];
-  const color = 1 + ((Math.random() * COLOR_COUNT) | 0);
+  const color = 1; // Só vermelho para teste
   return { kind, rotations: ROTATIONS[kind], rotation: 0, x: 0, y: 0, color };
 }
 

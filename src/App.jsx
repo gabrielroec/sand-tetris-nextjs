@@ -17,7 +17,17 @@ export default function App() {
   const rendererRef = useRef(null);
 
   // HUD: exibe números sem re-renderar tudo
-  const [hud, setHud] = useState({ level: 1, lines: 0, score: 0, combo: 0, gameOver: false });
+  const [hud, setHud] = useState({
+    level: 1,
+    lines: 0,
+    score: 0,
+    combo: 0,
+    gameOver: false,
+    airplaneMode: false,
+    airplaneScore: 0,
+    airplaneHits: 0,
+    airplaneTimeRemaining: 0,
+  });
 
   // Estado do áudio
   const [audioState, setAudioState] = useState({
@@ -108,25 +118,34 @@ export default function App() {
         // HUD leve
         if ((gameEngine.getState().tick & 3) === 0) {
           const state = gameEngine.getState();
+          const airplaneMode = gameEngine.getAirplaneMode();
           setHud({
             level: state.level,
             lines: state.lines,
             score: state.score,
             combo: state.combo,
             gameOver: state.gameOver,
+            airplaneMode: airplaneMode.isActive(),
+            airplaneScore: airplaneMode.getScore(),
+            airplaneHits: airplaneMode.getHits(),
+            airplaneTimeRemaining: airplaneMode.getTimeRemaining(),
           });
         }
       }
 
       // Renderização
-      const state = gameEngine.getState();
-      renderer.render({ grid: gameEngine.getGrid() }, gameEngine.getCurrentPiece());
-      renderer.renderNext(gameEngine.getNextPiece());
+      const airplaneMode = gameEngine.getAirplaneMode();
+      renderer.render({ grid: gameEngine.getGrid() }, gameEngine.getCurrentPiece(), airplaneMode);
+
+      // Só renderiza a próxima peça se não estiver no modo avião
+      if (!gameEngine.isAirplaneModeActive()) {
+        renderer.renderNext(gameEngine.getNextPiece());
+      }
     };
 
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [getKeys]);
 
   const onRestart = () => {
     gameEngineRef.current.reset();
@@ -155,6 +174,11 @@ export default function App() {
     audioManager.playButtonClick();
   };
 
+  const testAirplaneMode = () => {
+    gameEngineRef.current.getAirplaneMode().start();
+    audioManager.playButtonClick();
+  };
+
   return (
     <div className="game-container">
       {/* Header com título e configurações */}
@@ -164,9 +188,14 @@ export default function App() {
             <h1 className="game-title">SAND TETRIS</h1>
             {/* <div className="game-subtitle">Partículas em queda livre</div> */}
           </div>
-          <button className="settings-btn" onClick={toggleSettings}>
-            ⚙️ CONFIG
-          </button>
+          <div className="header-buttons">
+            <button className="test-btn" onClick={testAirplaneMode}>
+              ✈️ TESTE AVIÃO
+            </button>
+            <button className="settings-btn" onClick={toggleSettings}>
+              ⚙️ CONFIG
+            </button>
+          </div>
         </div>
       </div>
 
@@ -193,6 +222,27 @@ export default function App() {
             </div>
           </div>
 
+          {/* Modo Avião - só aparece quando ativo */}
+          {hud.airplaneMode && (
+            <div className="airplane-section">
+              <div className="airplane-title">✈️ MODO AVIÃO</div>
+              <div className="airplane-stats">
+                <div className="airplane-item">
+                  <div className="airplane-label">Tempo</div>
+                  <div className="airplane-value">{Math.ceil(hud.airplaneTimeRemaining / 1000)}s</div>
+                </div>
+                <div className="airplane-item">
+                  <div className="airplane-label">Pontos</div>
+                  <div className="airplane-value">{hud.airplaneScore}</div>
+                </div>
+                <div className="airplane-item">
+                  <div className="airplane-label">Acertos</div>
+                  <div className="airplane-value">{hud.airplaneHits}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Próxima peça */}
           <div className="next-section">
             <div className="next-label">NEXT</div>
@@ -216,6 +266,10 @@ export default function App() {
               <div className="control-item">
                 <span className="control-key">↓</span>
                 <span className="control-desc">Soft Drop</span>
+              </div>
+              <div className="control-item">
+                <span className="control-key">AUTO</span>
+                <span className="control-desc">Tiro Automático</span>
               </div>
               <div className="control-item">
                 <span className="control-key">P</span>

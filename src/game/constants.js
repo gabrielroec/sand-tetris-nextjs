@@ -19,6 +19,6 @@ export const COLOR_COUNT = CELL_COLORS.length - 1;
 
 export const REST_K = 6; // ticks até marcar repouso
 export const SAND_BUDGET = 5000; // tentativas de movimento por tick (p/ segurar FPS)
-export const BASE_FALL_MS = 220; // queda inicial (ms por célula)
+export const BASE_FALL_MS = 120; // queda inicial (ms por célula) - mais rápido
 export const LINES_PER_LEVEL = 10;
 export const SCORE_PER_LINE = 10;

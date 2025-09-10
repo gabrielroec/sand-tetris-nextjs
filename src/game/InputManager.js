@@ -11,6 +11,7 @@ export class InputManager {
       right: false,
       rotate: false,
       softDrop: false,
+      shoot: false,
     };
     this.callbacks = {};
 
@@ -43,6 +44,9 @@ export class InputManager {
         case "P":
           this.callbacks.onTogglePause?.();
           break;
+        case " ":
+          this.keys.shoot = true;
+          break;
       }
     };
 
@@ -60,6 +64,9 @@ export class InputManager {
         case "ArrowDown":
           this.keys.softDrop = false;
           this.callbacks.onSoftDrop?.(false);
+          break;
+        case " ":
+          this.keys.shoot = false;
           break;
       }
     };

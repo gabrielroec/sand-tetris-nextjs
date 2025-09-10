@@ -8,10 +8,12 @@ import { canPlace, placeToSand } from "./piece.js";
 import { simulateSand } from "./sand.js";
 import { clearColorLines } from "./lineClear.js";
 import { audioManager } from "./AudioManager.js";
-import { GRID_W, GRID_H, BASE_FALL_MS, SAND_BUDGET, REST_K, LINES_PER_LEVEL, SCORE_PER_LINE } from "./constants.js";
+import { AirplaneMode } from "./AirplaneMode.js";
+import { GRID_W, BASE_FALL_MS, SAND_BUDGET, REST_K, LINES_PER_LEVEL } from "./constants.js";
 
 export class GameEngine {
   constructor() {
+    this.airplaneMode = new AirplaneMode();
     this.reset();
   }
 
@@ -71,6 +73,23 @@ export class GameEngine {
   update(stepMs, keys) {
     if (!this.state.running || this.state.gameOver) return;
 
+    // Verifica se deve ativar o modo avião
+    if (this.state.score >= 1000 && !this.airplaneMode.isActive()) {
+      this.airplaneMode.start();
+    }
+
+    // Se o modo avião está ativo, atualiza ele
+    if (this.airplaneMode.isActive()) {
+      const shouldReturnToTetris = this.airplaneMode.update(stepMs, keys, this.grids.read);
+      if (shouldReturnToTetris) {
+        // Adiciona pontos do modo avião ao score total
+        this.state.score += this.airplaneMode.getScore();
+        // Continua o jogo normal do Tetris
+      } else {
+        return; // Não atualiza o Tetris enquanto o avião está ativo
+      }
+    }
+
     this.state.tick++;
     this.state.biasToggle = !this.state.biasToggle;
 
@@ -116,7 +135,7 @@ export class GameEngine {
   updatePieceFall(stepMs) {
     if (!this.state.current) return;
 
-    const speedMul = this.state.softDrop ? 3 : 1;
+    const speedMul = this.state.softDrop ? 6 : 1; // Soft drop mais rápido
     this.state.fallAccMs += stepMs * speedMul;
     const interval = Math.max(60, this.state.pieceFallMs);
 
@@ -165,7 +184,7 @@ export class GameEngine {
   }
 
   handleLineClear(cleared) {
-    const base = SCORE_PER_LINE * this.state.level;
+    const base = 200 * this.state.level; // 200 pontos por faixa
     const chain = this.state.lastClearTick === this.state.tick - 1 ? this.state.combo + 1 : 1;
 
     this.state.combo = chain;
@@ -257,5 +276,14 @@ export class GameEngine {
 
   isRunning() {
     return this.state.running;
+  }
+
+  // Métodos para o modo avião
+  isAirplaneModeActive() {
+    return this.airplaneMode.isActive();
+  }
+
+  getAirplaneMode() {
+    return this.airplaneMode;
   }
 }
