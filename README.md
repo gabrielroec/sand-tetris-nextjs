@@ -1,269 +1,70 @@
-# 🎮 Sand Tetris - Jogo Online Gratuito
+# Getting Started with Create React App
 
-[![Deploy Status](https://img.shields.io/badge/Deploy-Ready-brightgreen)](https://sandtetris.io)
-[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org)
-[![React](https://img.shields.io/badge/React-19-blue)](https://reactjs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://typescriptlang.org)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-**🎯 Jogue agora:** [sandtetris.io](https://sandtetris.io)
+## Available Scripts
 
-Um jogo de Tetris com física de areia inovadora, construído com Next.js 15, React 19 e TypeScript. Jogue online gratuitamente em qualquer dispositivo!
+In the project directory, you can run:
 
-## ✨ Características Principais
+### `npm start`
 
-- **🎮 Física de Areia Realista**: As peças se desintegram em grãos de areia que caem naturalmente
-- **🧹 Limpeza Inteligente**: Linhas monocromáticas e pontes são limpas automaticamente
-- **⚡ Performance Otimizada**: Game loop ultra otimizado para 60 FPS suaves
-- **🎨 Design Moderno**: Interface elegante com animações CSS e tema escuro
-- **📱 Totalmente Responsivo**: Funciona perfeitamente em desktop, tablet e mobile
-- **🎯 Controles Intuitivos**: Teclado, mouse e touch suportados
-- **🌐 PWA Ready**: Instalável como aplicativo nativo
-- **♿ Acessível**: Suporte completo para leitores de tela
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-## 🎮 Como Jogar
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
 
-### 🎹 Controles
+### `npm test`
 
-- **A/D**: Mover peça para esquerda/direita
-- **W**: Rotacionar 90° no sentido horário
-- **S**: Rotacionar 180°
-- **Espaço**: Queda rápida (fast drop)
-- **P**: Pausar/despausar
-- **R**: Reiniciar jogo
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### 🎯 Mecânicas Únicas
+### `npm run build`
 
-- **Desintegração**: Peças se quebram em areia ao tocar a superfície
-- **Limpeza de Linhas**: Linhas da mesma cor são limpas automaticamente
-- **Pontes**: Areia conectada de uma borda à outra é removida
-- **Pontuação**: Pontos por linhas e pontes limpas
-- **Níveis**: Velocidade aumenta conforme o score
-- **Combo System**: Multiplicadores de pontuação
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-## 🚀 Tecnologias
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-- **Next.js 15** - Framework React com App Router
-- **React 19** - Biblioteca de UI moderna
-- **TypeScript** - Tipagem estática para melhor desenvolvimento
-- **Tailwind CSS 4** - Framework CSS utilitário
-- **Framer Motion** - Animações fluidas e performáticas
-- **Canvas API** - Renderização 2D otimizada
-- **PWA** - Progressive Web App capabilities
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-## 🏗️ Arquitetura
+### `npm run eject`
 
-```
-src/
-├── app/                 # App Router do Next.js
-│   ├── layout.tsx      # Layout principal com SEO
-│   ├── page.tsx        # Página do jogo
-│   └── globals.css     # Estilos globais
-├── components/         # Componentes React
-│   ├── GameCanvas.tsx  # Canvas do jogo
-│   ├── GameControls.tsx # Controles do jogo
-│   └── MobileControls.tsx # Controles mobile
-└── hooks/             # Hooks customizados
-    └── useGameLogic.ts # Lógica do jogo
-```
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-## ⚡ Otimizações de Performance
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-### 🎯 Game Loop
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-- **60 FPS** garantidos com `requestAnimationFrame`
-- **Throttling inteligente** para evitar sobrecarga
-- **Cálculos otimizados** para física de areia
-- **Renderização eficiente** com Canvas 2D
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-### 🧠 Memória
+## Learn More
 
-- **Garbage collection** otimizado
-- **Referências estáveis** para evitar re-renders
-- **Buffers de animação** para reduzir operações
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-### 🎨 CSS
+To learn React, check out the [React documentation](https://reactjs.org/).
 
-- **Animações CSS** ao invés de JavaScript
-- **Will-change** para otimização de GPU
-- **Gradientes otimizados** para background
+### Code Splitting
 
-## 🎨 Design System
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
-### 🎨 Cores
+### Analyzing the Bundle Size
 
-- **Primárias**: Tons de roxo (#a78bfa) e azul (#60a5fa)
-- **Secundárias**: Verde (#34d399), amarelo (#fbbf24), rosa (#f472b6)
-- **Neutras**: Branco (#f8fbff), cinza escuro (#0b1020)
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
 
-### 📝 Tipografia
+### Making a Progressive Web App
 
-- **Geist Sans**: Fonte principal moderna
-- **Geist Mono**: Fonte monospace para números
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
 
-### ✨ Animações
+### Advanced Configuration
 
-- **Suaves**: Transições de 0.2s
-- **Fluidas**: Easing natural
-- **Performáticas**: CSS transforms
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
 
-## 🛠️ Desenvolvimento
+### Deployment
 
-### 📦 Instalação
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
-```bash
-git clone https://github.com/gabrielroec1/sand-tetris-nextjs.git
-cd sand-tetris-nextjs
-npm install
-```
+### `npm run build` fails to minify
 
-### 🚀 Desenvolvimento
-
-```bash
-npm run dev
-```
-
-### 🏗️ Build
-
-```bash
-npm run build
-```
-
-### 🔍 Lint
-
-```bash
-npm run lint
-```
-
-## 📊 Performance
-
-### 🎯 Métricas Alvo
-
-- **FPS**: 60 FPS consistentes
-- **Tempo de Carregamento**: < 2s
-- **Tamanho do Bundle**: < 500KB
-- **Lighthouse Score**: > 90
-
-### ✅ Otimizações Implementadas
-
-- ✅ Remoção do Three.js para melhor performance
-- ✅ Game loop otimizado
-- ✅ Renderização Canvas eficiente
-- ✅ CSS otimizado
-- ✅ Bundle size reduzido
-- ✅ SEO completo implementado
-- ✅ PWA capabilities
-- ✅ Acessibilidade melhorada
-
-## 🎮 Gameplay
-
-### 🎯 Mecânicas Únicas
-
-1. **Desintegração Imediata**: Peças se quebram instantaneamente
-2. **Física de Areia**: Grãos caem naturalmente
-3. **Limpeza Automática**: Linhas e pontes são removidas
-4. **Pontuação Dinâmica**: Baseada no nível atual
-5. **Sistema de Combo**: Multiplicadores de pontuação
-
-### 🧠 Estratégias
-
-- **Agrupe cores**: Para limpar linhas inteiras
-- **Construa pontes**: Para remoção em massa
-- **Use fast drop**: Para controle preciso
-- **Gerencie espaço**: Evite acumular areia
-- **Aproveite combos**: Para pontuação máxima
-
-## 🔧 Configuração
-
-### 🌍 Variáveis de Ambiente
-
-```env
-# Ambiente
-NODE_ENV=development
-
-# URL do site
-NEXT_PUBLIC_SITE_URL=https://sandtetris.io
-
-# Versão do jogo
-NEXT_PUBLIC_GAME_VERSION=1.0.0
-
-# Google Analytics (opcional)
-NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
-```
-
-**Nota:** Para usar Google Analytics, crie um arquivo `.env.local` com seu ID do GA.
-
-### ⚙️ Configurações do Next.js
-
-- **Turbopack**: Para desenvolvimento rápido
-- **SWC**: Para minificação otimizada
-- **App Router**: Para roteamento moderno
-- **SEO**: Metadados completos
-- **PWA**: Manifest e service worker
-
-## 📱 Responsividade
-
-### 📐 Breakpoints
-
-- **Desktop**: > 1024px
-- **Tablet**: 768px - 1024px
-- **Mobile**: < 768px
-
-### 🎯 Adaptações
-
-- **Controles touch**: Para dispositivos móveis
-- **Layout flexível**: Grid responsivo
-- **Fontes escaláveis**: Para diferentes telas
-- **PWA**: Instalável em qualquer dispositivo
-
-## 🎯 Roadmap
-
-### 🚀 Próximas Features
-
-- [ ] Modo multiplayer
-- [ ] Power-ups especiais
-- [ ] Modos de jogo alternativos
-- [ ] Sistema de achievements
-- [ ] Leaderboards online
-- [ ] Modo arcade avançado
-
-### 🔧 Melhorias Técnicas
-
-- [ ] WebGL para renderização
-- [ ] Web Workers para física
-- [ ] Service Worker para cache
-- [ ] PWA capabilities completas
-- [ ] Analytics integrado
-
-## 🤝 Contribuição
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
-
-## 🙏 Agradecimentos
-
-- **Next.js Team** pelo framework incrível
-- **React Team** pela biblioteca de UI
-- **Tailwind CSS** pelos estilos utilitários
-- **Framer Motion** pelas animações fluidas
-- **Vercel** pelo hosting e deploy automático
-
-## 📞 Contato
-
-- **Desenvolvedor**: Gabriel Roec
-- **GitHub**: [@gabrielroec1](https://github.com/gabrielroec1)
-- **Site**: [sandtetris.io](https://sandtetris.io)
-- **Email**: gabrielroec1@gmail.com
-
----
-
-**🎮 Jogue agora:** [sandtetris.io](https://sandtetris.io)
-
-**Desenvolvido com ❤️ usando Next.js**
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

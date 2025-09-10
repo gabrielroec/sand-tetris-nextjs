@@ -1,0 +1,83 @@
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sand Tetris</title>
+    <style>
+      html,
+      body,
+      #root {
+        height: 100%;
+        margin: 0;
+        background: #0e0f13;
+        color: #e8e8ea;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+      }
+      .wrap {
+        display: grid;
+        grid-template-columns: auto 260px;
+        gap: 16px;
+        height: 100%;
+        padding: 12px;
+        box-sizing: border-box;
+      }
+      .panel {
+        background: #14161c;
+        border: 1px solid #1e2230;
+        border-radius: 10px;
+        padding: 12px;
+      }
+      .title {
+        font-weight: 700;
+        letter-spacing: 0.4px;
+      }
+      .btn {
+        background: #1f2433;
+        border: 1px solid #2b3247;
+        color: #e8e8ea;
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        image-rendering: pixelated;
+      }
+      small.kbd {
+        background: #222735;
+        border: 1px solid #2f3550;
+        border-bottom-width: 2px;
+        padding: 1px 6px;
+        border-radius: 6px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .stat {
+        background: #11131a;
+        border: 1px solid #1b2030;
+        border-radius: 8px;
+        padding: 8px;
+        text-align: center;
+      }
+      .next {
+        aspect-ratio: 1/1;
+        width: 100%;
+        background: #0b0c10;
+        border: 1px dashed #2b3247;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

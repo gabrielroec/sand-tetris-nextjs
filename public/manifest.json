@@ -1,73 +1,25 @@
 {
-  "name": "Sand Tetris - Jogo Online Gratuito",
-  "short_name": "Sand Tetris",
-  "description": "Jogue Sand Tetris online gratuitamente! Um jogo de puzzle arcade moderno com gráficos HTML5, efeitos visuais incríveis e modo arcade.",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#0b1020",
-  "theme_color": "#a78bfa",
-  "orientation": "portrait-primary",
-  "scope": "/",
-  "lang": "pt-BR",
-  "dir": "ltr",
-  "categories": ["games", "entertainment", "puzzle"],
+  "short_name": "React App",
+  "name": "Create React App Sample",
   "icons": [
     {
-      "src": "/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/apple-touch-icon.png",
-      "sizes": "180x180",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon.ico",
-      "sizes": "48x48",
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Jogar Sand Tetris",
-      "short_name": "Jogar",
-      "description": "Iniciar uma nova partida de Sand Tetris",
-      "url": "/?action=play",
-      "icons": [
-        {
-          "src": "/icon-192x192.png",
-          "sizes": "192x192"
-        }
-      ]
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshot-desktop.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Sand Tetris no Desktop"
     },
     {
-      "src": "/screenshot-mobile.png",
-      "sizes": "390x844",
+      "src": "logo192.png",
       "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Sand Tetris no Mobile"
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
     }
   ],
-  "related_applications": [],
-  "prefer_related_applications": false,
-  "edge_side_panel": {
-    "preferred_width": 400
-  }
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
 }
