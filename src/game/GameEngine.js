@@ -92,8 +92,11 @@ export class GameEngine {
   update(stepMs, keys) {
     if (!this.state.running || this.state.gameOver) return;
 
-    // Verifica se deve ativar o modo avião (só entre 1000-1099 para evitar loop)
-    if (this.state.score >= 1000 && this.state.score < 1100 && !this.airplaneMode.isActive()) {
+    // Sistema progressivo de modo avião: 1000, 2000, 3000, 4000...
+    const airplaneThreshold = Math.floor(this.state.score / 1000) * 1000 + 1000;
+    const nextThreshold = airplaneThreshold + 1000;
+
+    if (this.state.score >= airplaneThreshold && this.state.score < nextThreshold && !this.airplaneMode.isActive()) {
       this.airplaneMode.start();
       this.state.score += 100; // Adiciona 100 pontos ao entrar no modo avião
 
@@ -102,6 +105,7 @@ export class GameEngine {
         game: "sand-tetris",
         score: this.state.score,
         level: this.state.level,
+        threshold: airplaneThreshold,
         timestamp: new Date().toISOString(),
       });
     }

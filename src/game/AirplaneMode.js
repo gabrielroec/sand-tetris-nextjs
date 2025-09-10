@@ -114,7 +114,7 @@ export class AirplaneMode {
       for (let dy = 0; dy < 2; dy++) {
         const checkX = x + dx;
         const checkY = y + dy;
-        
+
         if (inBounds(checkX, checkY)) {
           const cellIndex = idx(checkX, checkY);
           if (grid[cellIndex] !== 0) {

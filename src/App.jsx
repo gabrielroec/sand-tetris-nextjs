@@ -30,6 +30,7 @@ export default function App() {
     airplaneScore: 0,
     airplaneHits: 0,
     airplaneTimeRemaining: 0,
+    nextAirplaneThreshold: 1000,
   });
 
   // Estado do áudio
@@ -122,6 +123,10 @@ export default function App() {
         if ((gameEngine.getState().tick & 3) === 0) {
           const state = gameEngine.getState();
           const airplaneMode = gameEngine.getAirplaneMode();
+
+          // Calcula próximo threshold do modo avião
+          const nextAirplaneThreshold = Math.floor(state.score / 1000) * 1000 + 1000;
+
           setHud({
             level: state.level,
             lines: state.lines,
@@ -132,6 +137,7 @@ export default function App() {
             airplaneScore: airplaneMode.getScore(),
             airplaneHits: airplaneMode.getHits(),
             airplaneTimeRemaining: airplaneMode.getTimeRemaining(),
+            nextAirplaneThreshold: nextAirplaneThreshold,
           });
         }
       }
@@ -262,6 +268,22 @@ export default function App() {
                   <div className="airplane-value">{hud.airplaneHits}</div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Progresso para próximo modo avião */}
+          {!hud.airplaneMode && (
+            <div className="airplane-progress">
+              <div className="airplane-progress-title">✈️ PRÓXIMO AVIÃO</div>
+              <div className="airplane-progress-bar">
+                <div
+                  className="airplane-progress-fill"
+                  style={{
+                    width: `${Math.min(100, (hud.score % 1000) / 10)}%`,
+                  }}
+                ></div>
+              </div>
+              <div className="airplane-progress-text">{hud.nextAirplaneThreshold - hud.score} pontos restantes</div>
             </div>
           )}
 
