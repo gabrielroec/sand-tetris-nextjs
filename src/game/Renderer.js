@@ -43,7 +43,14 @@ export class Renderer {
     const blocks = piece.rotations[0];
 
     for (const [x, y] of blocks) {
-      this.nextCtx.fillRect(ox + x * cell, oy + y * cell, cell, cell);
+      // Desenha círculo no centro da célula
+      const centerX = ox + x * cell + cell / 2;
+      const centerY = oy + y * cell + cell / 2;
+      const radius = cell * 0.4; // 40% do tamanho da célula
+
+      this.nextCtx.beginPath();
+      this.nextCtx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+      this.nextCtx.fill();
     }
   }
 
@@ -60,13 +67,21 @@ export class Renderer {
     const cellW = Math.floor(this.canvas.width / GRID_W);
     const cellH = Math.floor(this.canvas.height / GRID_H);
 
-    // Desenha as células coloridas
+    // Desenha as células coloridas como círculos
     for (let y = 0; y < GRID_H; y++) {
       for (let x = 0; x < GRID_W; x++) {
         const c = cells[idx(x, y)];
         if (c !== 0) {
           this.ctx.fillStyle = CELL_COLORS[c];
-          this.ctx.fillRect(x * cellW, y * cellH, cellW, cellH);
+
+          // Desenha círculo no centro da célula
+          const centerX = x * cellW + cellW / 2;
+          const centerY = y * cellH + cellH / 2;
+          const radius = Math.min(cellW, cellH) * 0.4; // 40% do tamanho da célula
+
+          this.ctx.beginPath();
+          this.ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+          this.ctx.fill();
         }
       }
     }
@@ -109,7 +124,14 @@ export class Renderer {
 
     for (const [bx, by] of blocks) {
       if (inBounds(bx, by)) {
-        this.ctx.fillRect(bx * cellW, by * cellH, cellW, cellH);
+        // Desenha círculo no centro da célula
+        const centerX = bx * cellW + cellW / 2;
+        const centerY = by * cellH + cellH / 2;
+        const radius = Math.min(cellW, cellH) * 0.4; // 40% do tamanho da célula
+
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        this.ctx.fill();
       }
     }
   }
