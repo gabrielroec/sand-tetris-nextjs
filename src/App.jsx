@@ -269,15 +269,15 @@ export default function App() {
             <div className="controls-label">CONTROLS</div>
             <div className="controls-grid">
               <div className="control-item">
-                <span className="control-key">← →</span>
+                <span className="control-key">A D</span>
                 <span className="control-desc">Move</span>
               </div>
               <div className="control-item">
-                <span className="control-key">↑</span>
+                <span className="control-key">W</span>
                 <span className="control-desc">Rotate</span>
               </div>
               <div className="control-item">
-                <span className="control-key">↓</span>
+                <span className="control-key">S</span>
                 <span className="control-desc">Soft Drop</span>
               </div>
               <div className="control-item">

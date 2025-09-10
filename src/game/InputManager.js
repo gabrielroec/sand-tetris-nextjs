@@ -26,22 +26,25 @@ export class InputManager {
     this.callbacks = callbacks;
 
     const handleKeyDown = (e) => {
-      switch (e.key) {
-        case "ArrowLeft":
+      switch (e.key.toLowerCase()) {
+        case "arrowleft":
+        case "a":
           this.keys.left = true;
           break;
-        case "ArrowRight":
+        case "arrowright":
+        case "d":
           this.keys.right = true;
           break;
-        case "ArrowUp":
+        case "arrowup":
+        case "w":
           this.keys.rotate = true;
           break;
-        case "ArrowDown":
+        case "arrowdown":
+        case "s":
           this.keys.softDrop = true;
           this.callbacks.onSoftDrop?.(true);
           break;
         case "p":
-        case "P":
           this.callbacks.onTogglePause?.();
           break;
         case " ":
@@ -51,17 +54,21 @@ export class InputManager {
     };
 
     const handleKeyUp = (e) => {
-      switch (e.key) {
-        case "ArrowLeft":
+      switch (e.key.toLowerCase()) {
+        case "arrowleft":
+        case "a":
           this.keys.left = false;
           break;
-        case "ArrowRight":
+        case "arrowright":
+        case "d":
           this.keys.right = false;
           break;
-        case "ArrowUp":
+        case "arrowup":
+        case "w":
           this.keys.rotate = false;
           break;
-        case "ArrowDown":
+        case "arrowdown":
+        case "s":
           this.keys.softDrop = false;
           this.callbacks.onSoftDrop?.(false);
           break;
