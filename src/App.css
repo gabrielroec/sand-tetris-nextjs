@@ -627,6 +627,68 @@ body {
   }
 }
 
+/* Anúncios */
+.top-ad-container {
+  width: 100%;
+  max-width: 728px;
+  margin: 0 auto 20px auto;
+  text-align: center;
+}
+
+.top-banner-ad {
+  width: 100%;
+  height: 90px;
+  background: #1a1a2e;
+  border: 1px solid #2b3247;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 12px;
+}
+
+.side-ad-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.side-banner-ad {
+  width: 160px;
+  height: 600px;
+  background: #1a1a2e;
+  border: 1px solid #2b3247;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 12px;
+  margin: 0 auto;
+}
+
+.ad-banner {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsivo para anúncios */
+@media (max-width: 768px) {
+  .top-ad-container {
+    max-width: 320px;
+  }
+
+  .top-banner-ad {
+    height: 50px;
+  }
+
+  .side-ad-container {
+    display: none; /* Esconde anúncio lateral no mobile */
+  }
+}
+
 /* Game Over */
 .game-over-overlay {
   position: fixed;

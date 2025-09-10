@@ -4,6 +4,7 @@ import { GameEngine } from "./game/GameEngine.js";
 import { Renderer } from "./game/Renderer.js";
 import { useKeyboard } from "./game/InputManager.js";
 import { audioManager } from "./game/AudioManager.js";
+import AdBanner from "./components/AdBanner.jsx";
 import "./App.css";
 
 export default function App() {
@@ -189,6 +190,11 @@ export default function App() {
         </div>
       </div>
 
+      {/* Banner de anúncio no topo */}
+      <div className="top-ad-container">
+        <AdBanner adSlot="1234567890" adFormat="horizontal" className="top-banner-ad" />
+      </div>
+
       {/* Layout principal do jogo */}
       <div className="game-layout">
         {/* Painel esquerdo - Informações */}
@@ -257,7 +263,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* Painel direito - Controles */}
+        {/* Painel direito - Controles e Anúncio */}
         <div className="stats-panel">
           <div className="controls-section">
             <div className="controls-label">CONTROLS</div>
@@ -279,6 +285,11 @@ export default function App() {
                 <span className="control-desc">Pause</span>
               </div>
             </div>
+          </div>
+
+          {/* Anúncio lateral */}
+          <div className="side-ad-container">
+            <AdBanner adSlot="0987654321" adFormat="vertical" className="side-banner-ad" />
           </div>
         </div>
       </div>
