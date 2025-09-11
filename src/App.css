@@ -904,6 +904,7 @@ body {
 @media (max-width: 768px) {
   .mobile-controls {
     display: flex;
+    padding-bottom: 100px !important;
   }
 
   /* Header mobile: título de um lado, config do outro */
