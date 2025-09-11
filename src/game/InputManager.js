@@ -18,7 +18,7 @@ export class InputManager {
     // Controle de velocidade dos controles
     this.lastMoveTime = 0;
     this.lastRotateTime = 0;
-    this.moveDelay = 150; // ms entre movimentos
+    this.moveDelay = 50; // ms entre movimentos
     this.rotateDelay = 200; // ms entre rotações
   }
 
@@ -114,6 +114,8 @@ export class InputManager {
       case " ":
         this.keys.shoot = true;
         break;
+      default:
+        break;
     }
     console.log("🔑 Estado das teclas:", this.keys);
   }
@@ -135,6 +137,7 @@ export class InputManager {
         break;
       case "arrowdown":
       case "s":
+        console.log("⬇️ Definindo softDrop = false");
         this.keys.softDrop = false;
         this.callbacks.onSoftDrop?.(false);
         break;

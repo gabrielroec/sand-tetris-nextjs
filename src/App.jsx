@@ -65,35 +65,50 @@ export default function App() {
   }, []);
 
   // Handlers para controles mobile
-  const handleMobileMove = (direction) => {
-    console.log(`🎮 Mobile move: ${direction}`);
+  const handleMobileMove = (direction, active) => {
+    console.log(`🎮 Mobile move: ${direction} - ${active ? "DOWN" : "UP"}`);
     const inputManager = getKeys.inputManager;
     if (direction === "left") {
-      console.log("⬅️ Simulando ArrowLeft");
-      inputManager.simulateKeyDown("ArrowLeft");
-      setTimeout(() => {
+      if (active) {
+        console.log("⬅️ Simulando ArrowLeft DOWN");
+        inputManager.simulateKeyDown("ArrowLeft");
+      } else {
+        console.log("⬅️ Simulando ArrowLeft UP");
         inputManager.simulateKeyUp("ArrowLeft");
-      }, 100);
+      }
     } else if (direction === "right") {
-      console.log("➡️ Simulando ArrowRight");
-      inputManager.simulateKeyDown("ArrowRight");
-      setTimeout(() => {
+      if (active) {
+        console.log("➡️ Simulando ArrowRight DOWN");
+        inputManager.simulateKeyDown("ArrowRight");
+      } else {
+        console.log("➡️ Simulando ArrowRight UP");
         inputManager.simulateKeyUp("ArrowRight");
-      }, 100);
+      }
     }
   };
 
-  const handleMobileRotate = () => {
-    console.log("🔄 Mobile rotate");
+  const handleMobileRotate = (active) => {
+    console.log(`🔄 Mobile rotate - ${active ? "DOWN" : "UP"}`);
     const inputManager = getKeys.inputManager;
-    inputManager.simulateKeyDown("ArrowUp");
-    setTimeout(() => {
+    if (active) {
+      console.log("🔄 Simulando ArrowUp DOWN");
+      inputManager.simulateKeyDown("ArrowUp");
+    } else {
+      console.log("🔄 Simulando ArrowUp UP");
       inputManager.simulateKeyUp("ArrowUp");
-    }, 100);
+    }
   };
 
   const handleMobileSoftDrop = (active) => {
-    gameEngineRef.current.setSoftDrop(active);
+    console.log(`⬇️ Mobile soft drop - ${active ? "DOWN" : "UP"}`);
+    const inputManager = getKeys.inputManager;
+    if (active) {
+      console.log("⬇️ Simulando ArrowDown DOWN");
+      inputManager.simulateKeyDown("ArrowDown");
+    } else {
+      console.log("⬇️ Simulando ArrowDown UP");
+      inputManager.simulateKeyUp("ArrowDown");
+    }
   };
 
   // Inicialização do renderer
@@ -257,35 +272,67 @@ export default function App() {
 
       {/* Layout principal do jogo */}
       <div className="game-layout">
-        {/* Painel esquerdo - Informações */}
-        <div className="info-panel">
-          <div className="score-section">
-            <div className="score-item">
-              <div className="score-label">SCORE</div>
-              <div className="score-value">{hud.score.toLocaleString()}</div>
+        {/* Container mobile para anúncio + info-panel */}
+        {isMobile ? (
+          <div className="mobile-info-container">
+            {/* Painel esquerdo - Informações */}
+            <div className="info-panel">
+              <div className="score-section">
+                <div className="score-item">
+                  <div className="score-label">SCORE</div>
+                  <div className="score-value">{hud.score.toLocaleString()}</div>
+                </div>
+                <div className="score-item">
+                  <div className="score-label">LEVEL</div>
+                  <div className="score-value">{hud.level}</div>
+                </div>
+                <div className="score-item">
+                  <div className="score-label">LINES</div>
+                  <div className="score-value">{hud.lines}</div>
+                </div>
+                <div className="score-item">
+                  <div className="score-label">COMBO</div>
+                  <div className="score-value">{hud.combo}</div>
+                </div>
+              </div>
             </div>
-            <div className="score-item">
-              <div className="score-label">LEVEL</div>
-              <div className="score-value">{hud.level}</div>
-            </div>
-            <div className="score-item">
-              <div className="score-label">LINES</div>
-              <div className="score-value">{hud.lines}</div>
-            </div>
-            <div className="score-item">
-              <div className="score-label">COMBO</div>
-              <div className="score-value">{hud.combo}</div>
-            </div>
-          </div>
 
-          {/* Próxima peça */}
-          <div className="next-section">
-            <div className="next-label">NEXT</div>
-            <div className="next-preview">
-              <canvas ref={nextRef} className="next-canvas" />
+            {/* Anúncio mobile - dentro do container */}
+            <div className="mobile-ad-container">
+              <AdBanner adSlot="1234567890" adFormat="horizontal" className="mobile-banner-ad" />
             </div>
           </div>
-        </div>
+        ) : (
+          /* Layout desktop - info-panel normal */
+          <div className="info-panel">
+            <div className="score-section">
+              <div className="score-item">
+                <div className="score-label">SCORE</div>
+                <div className="score-value">{hud.score.toLocaleString()}</div>
+              </div>
+              <div className="score-item">
+                <div className="score-label">LEVEL</div>
+                <div className="score-value">{hud.level}</div>
+              </div>
+              <div className="score-item">
+                <div className="score-label">LINES</div>
+                <div className="score-value">{hud.lines}</div>
+              </div>
+              <div className="score-item">
+                <div className="score-label">COMBO</div>
+                <div className="score-value">{hud.combo}</div>
+              </div>
+            </div>
+
+            {/* Próxima peça */}
+            <div className="next-section">
+              <div className="next-label">NEXT</div>
+              <div className="next-preview">
+                <canvas ref={nextRef} className="next-canvas" />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Painel central - Jogo */}
         <div className="game-panel">
@@ -342,11 +389,19 @@ export default function App() {
               className="mobile-btn mobile-btn-left"
               onTouchStart={(e) => {
                 e.preventDefault();
-                handleMobileMove("left");
+                handleMobileMove("left", true);
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                handleMobileMove("left", false);
               }}
               onMouseDown={(e) => {
                 e.preventDefault();
-                handleMobileMove("left");
+                handleMobileMove("left", true);
+              }}
+              onMouseUp={(e) => {
+                e.preventDefault();
+                handleMobileMove("left", false);
               }}
             >
               ←
@@ -355,11 +410,19 @@ export default function App() {
               className="mobile-btn mobile-btn-rotate"
               onTouchStart={(e) => {
                 e.preventDefault();
-                handleMobileRotate();
+                handleMobileRotate(true);
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                handleMobileRotate(false);
               }}
               onMouseDown={(e) => {
                 e.preventDefault();
-                handleMobileRotate();
+                handleMobileRotate(true);
+              }}
+              onMouseUp={(e) => {
+                e.preventDefault();
+                handleMobileRotate(false);
               }}
             >
               ↻
@@ -368,11 +431,19 @@ export default function App() {
               className="mobile-btn mobile-btn-right"
               onTouchStart={(e) => {
                 e.preventDefault();
-                handleMobileMove("right");
+                handleMobileMove("right", true);
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                handleMobileMove("right", false);
               }}
               onMouseDown={(e) => {
                 e.preventDefault();
-                handleMobileMove("right");
+                handleMobileMove("right", true);
+              }}
+              onMouseUp={(e) => {
+                e.preventDefault();
+                handleMobileMove("right", false);
               }}
             >
               →
