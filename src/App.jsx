@@ -35,6 +35,9 @@ export default function App() {
     sfxVolume: 0.5,
   });
 
+  // Estado para controles mobile
+  const [isMobile, setIsMobile] = useState(false);
+
   // Estado do painel de configurações
   const [showSettings, setShowSettings] = useState(false);
 
@@ -47,6 +50,51 @@ export default function App() {
       gameEngineRef.current.setSoftDrop(v);
     },
   });
+
+  // Detectar se é mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      const isMobileDevice = window.innerWidth <= 768 || "ontouchstart" in window;
+      console.log(`📱 Detecção mobile: ${isMobileDevice} (width: ${window.innerWidth}, touch: ${"ontouchstart" in window})`);
+      setIsMobile(isMobileDevice);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Handlers para controles mobile
+  const handleMobileMove = (direction) => {
+    console.log(`🎮 Mobile move: ${direction}`);
+    const inputManager = getKeys.inputManager;
+    if (direction === "left") {
+      console.log("⬅️ Simulando ArrowLeft");
+      inputManager.simulateKeyDown("ArrowLeft");
+      setTimeout(() => {
+        inputManager.simulateKeyUp("ArrowLeft");
+      }, 100);
+    } else if (direction === "right") {
+      console.log("➡️ Simulando ArrowRight");
+      inputManager.simulateKeyDown("ArrowRight");
+      setTimeout(() => {
+        inputManager.simulateKeyUp("ArrowRight");
+      }, 100);
+    }
+  };
+
+  const handleMobileRotate = () => {
+    console.log("🔄 Mobile rotate");
+    const inputManager = getKeys.inputManager;
+    inputManager.simulateKeyDown("ArrowUp");
+    setTimeout(() => {
+      inputManager.simulateKeyUp("ArrowUp");
+    }, 100);
+  };
+
+  const handleMobileSoftDrop = (active) => {
+    gameEngineRef.current.setSoftDrop(active);
+  };
 
   // Inicialização do renderer
   useEffect(() => {
@@ -284,6 +332,77 @@ export default function App() {
           </div>
         </div>
       </div>
+
+      {/* Controles Mobile */}
+      {isMobile && (
+        <div className="mobile-controls">
+          {console.log("📱 Renderizando controles mobile")}
+          <div className="mobile-control-row">
+            <button
+              className="mobile-btn mobile-btn-left"
+              onTouchStart={(e) => {
+                e.preventDefault();
+                handleMobileMove("left");
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleMobileMove("left");
+              }}
+            >
+              ←
+            </button>
+            <button
+              className="mobile-btn mobile-btn-rotate"
+              onTouchStart={(e) => {
+                e.preventDefault();
+                handleMobileRotate();
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleMobileRotate();
+              }}
+            >
+              ↻
+            </button>
+            <button
+              className="mobile-btn mobile-btn-right"
+              onTouchStart={(e) => {
+                e.preventDefault();
+                handleMobileMove("right");
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleMobileMove("right");
+              }}
+            >
+              →
+            </button>
+          </div>
+          <div className="mobile-control-row">
+            <button
+              className="mobile-btn mobile-btn-softdrop"
+              onTouchStart={(e) => {
+                e.preventDefault();
+                handleMobileSoftDrop(true);
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                handleMobileSoftDrop(false);
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleMobileSoftDrop(true);
+              }}
+              onMouseUp={(e) => {
+                e.preventDefault();
+                handleMobileSoftDrop(false);
+              }}
+            >
+              ⬇ SOFT DROP
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal de Configurações */}
       {showSettings && (

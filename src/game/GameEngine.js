@@ -105,8 +105,11 @@ export class GameEngine {
   handleInput(keys) {
     if (!this.state.current) return;
 
+    console.log("🎮 GameEngine.handleInput - keys recebidas:", keys);
+
     // Processa movimento lateral
     if (keys.left) {
+      console.log("⬅️ Movendo para esquerda");
       const newPiece = this.tryMovePiece(-1, 0);
       if (newPiece !== this.state.current) {
         this.state.current = newPiece;
@@ -114,6 +117,7 @@ export class GameEngine {
       }
     }
     if (keys.right) {
+      console.log("➡️ Movendo para direita");
       const newPiece = this.tryMovePiece(1, 0);
       if (newPiece !== this.state.current) {
         this.state.current = newPiece;

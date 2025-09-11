@@ -1,5 +1,5 @@
-export const GRID_W = 16;
-export const GRID_H = 41;
+export const GRID_W = 20;
+export const GRID_H = 50;
 export const UPS = 60; // updates por segundo (tempo fixo)
 
 // === Render (peça independente do tamanho do canvas) ===

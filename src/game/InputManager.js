@@ -26,56 +26,11 @@ export class InputManager {
     this.callbacks = callbacks;
 
     const handleKeyDown = (e) => {
-      switch (e.key.toLowerCase()) {
-        case "arrowleft":
-        case "a":
-          this.keys.left = true;
-          break;
-        case "arrowright":
-        case "d":
-          this.keys.right = true;
-          break;
-        case "arrowup":
-        case "w":
-          this.keys.rotate = true;
-          break;
-        case "arrowdown":
-        case "s":
-          this.keys.softDrop = true;
-          this.callbacks.onSoftDrop?.(true);
-          break;
-        case "p":
-          this.callbacks.onTogglePause?.();
-          break;
-        case " ":
-          this.keys.shoot = true;
-          break;
-      }
+      this.processKeyDown(e);
     };
 
     const handleKeyUp = (e) => {
-      switch (e.key.toLowerCase()) {
-        case "arrowleft":
-        case "a":
-          this.keys.left = false;
-          break;
-        case "arrowright":
-        case "d":
-          this.keys.right = false;
-          break;
-        case "arrowup":
-        case "w":
-          this.keys.rotate = false;
-          break;
-        case "arrowdown":
-        case "s":
-          this.keys.softDrop = false;
-          this.callbacks.onSoftDrop?.(false);
-          break;
-        case " ":
-          this.keys.shoot = false;
-          break;
-      }
+      this.processKeyUp(e);
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -116,6 +71,78 @@ export class InputManager {
   resetRotate() {
     this.keys.rotate = false;
   }
+
+  // Métodos para simular teclas (usado pelos controles mobile)
+  simulateKeyDown(key) {
+    console.log(`🔧 InputManager.simulateKeyDown: ${key}`);
+    this.processKeyDown({ key });
+  }
+
+  simulateKeyUp(key) {
+    this.processKeyUp({ key });
+  }
+
+  // Processa tecla pressionada
+  processKeyDown(e) {
+    console.log(`🎯 processKeyDown: ${e.key}`);
+
+    switch (e.key.toLowerCase()) {
+      case "arrowleft":
+      case "a":
+        console.log("⬅️ Definindo left = true");
+        this.keys.left = true;
+        break;
+      case "arrowright":
+      case "d":
+        console.log("➡️ Definindo right = true");
+        this.keys.right = true;
+        break;
+      case "arrowup":
+      case "w":
+        console.log("🔄 Definindo rotate = true");
+        this.keys.rotate = true;
+        break;
+      case "arrowdown":
+      case "s":
+        console.log("⬇️ Definindo softDrop = true");
+        this.keys.softDrop = true;
+        this.callbacks.onSoftDrop?.(true);
+        break;
+      case "p":
+        this.callbacks.onTogglePause?.();
+        break;
+      case " ":
+        this.keys.shoot = true;
+        break;
+    }
+    console.log("🔑 Estado das teclas:", this.keys);
+  }
+
+  // Processa tecla solta
+  processKeyUp(e) {
+    switch (e.key.toLowerCase()) {
+      case "arrowleft":
+      case "a":
+        this.keys.left = false;
+        break;
+      case "arrowright":
+      case "d":
+        this.keys.right = false;
+        break;
+      case "arrowup":
+      case "w":
+        this.keys.rotate = false;
+        break;
+      case "arrowdown":
+      case "s":
+        this.keys.softDrop = false;
+        this.callbacks.onSoftDrop?.(false);
+        break;
+      case " ":
+        this.keys.shoot = false;
+        break;
+    }
+  }
 }
 
 // Hook React para compatibilidade
@@ -128,5 +155,10 @@ export function useKeyboard(callbacks) {
   }, [callbacks, inputManager]);
 
   // Retorna uma função que sempre pega o estado atual das teclas
-  return () => inputManager.getKeys();
+  const getKeys = () => inputManager.getKeys();
+
+  // Adiciona o inputManager para controles mobile
+  getKeys.inputManager = inputManager;
+
+  return getKeys;
 }
